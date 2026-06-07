@@ -73,6 +73,16 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 .vdots{display:flex;justify-content:center;gap:5px;padding:7px 0 3px;background:var(--bg)}
 .vdot{width:6px;height:6px;border-radius:50%;background:var(--bo);cursor:pointer;transition:all .2s}
 .vdot.on{background:var(--p);width:14px;border-radius:3px}
+.vslide{cursor:pointer}
+/* Vitrine modal */
+.vmodal{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto}
+.vmodal.on{display:flex}
+.vmodal-close{position:fixed;top:calc(14px + var(--ss));right:16px;z-index:301;background:rgba(0,0,0,.55);border:none;color:#fff;font-size:22px;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;backdrop-filter:blur(4px)}
+.vmodal-img{width:100%;max-width:600px;max-height:70vh;object-fit:contain;border-radius:0 0 12px 12px}
+.vmodal-txt{width:100%;max-width:600px;padding:20px 20px calc(32px + var(--sb));flex:1}
+.vmodal-title{font-family:var(--fs);font-size:22px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:10px}
+.vmodal-body{font-size:15px;color:rgba(255,255,255,.82);line-height:1.7;white-space:pre-line;margin-bottom:16px}
+.vmodal-link{display:inline-block;background:var(--p);color:#fff;font-size:14px;padding:10px 22px;border-radius:22px;text-decoration:none;font-weight:500}
 
 /* HOME MINI PANEL */
 .mpanel{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 4px}
@@ -430,7 +440,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   <nav class="nav-desk" id="nav-desk">
     <button class="nb-desk on" data-page="home" onclick="goToDesk('home',this)">
       <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início</button>
-    <button class="nb-desk" data-page="members" onclick="goToDesk('members',this)">
+    <button class="nb-desk" id="desk-nav-members" data-page="members" style="display:none" onclick="goToDesk('members',this)">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Filhos de Santo</button>
     <button class="nb-desk" data-page="calendar" onclick="goToDesk('calendar',this)">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
@@ -450,7 +460,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 <!-- NAV -->
 <nav class="nav" id="mainnav">
   <button class="nb on" onclick="goTo('home',this)"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início</button>
-  <button class="nb" onclick="goTo('members',this)"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Filhos</button>
+  <button class="nb" id="nav-members" style="display:none" onclick="goTo('members',this)"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Filhos</button>
   <button class="nb" onclick="goTo('calendar',this)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
   <button class="nb" id="abtn-mob" onclick="toggleAdminMenu()"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Admin</button>
 </nav>
@@ -477,16 +487,8 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     <!-- FINANÇAS -->
     <div class="slbl">Finanças</div>
     <div class="card" style="margin-bottom:14px">
-      <div class="crow" onclick="closeOv('ov-admin-menu');goTo('finance',null);setTimeout(()=>{document.querySelector('#pg-finance .tbbtn.on')||finTab(document.querySelector('#pg-finance .tbbtn'),'mens')},100)">
-        <div><div class="cl">💰 Mensalidades</div><div class="cs">Controle de pagamentos dos membros</div></div>
-        <div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-      </div>
-      <div class="crow" onclick="closeOv('ov-admin-menu');goTo('finance',null);setTimeout(()=>finTab(document.querySelectorAll('#pg-finance .tbbtn')[1],'desp'),100)">
-        <div><div class="cl">📋 Despesas</div><div class="cs">Lançamentos de saídas</div></div>
-        <div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-      </div>
-      <div class="crow" onclick="closeOv('ov-admin-menu');goTo('finance',null);setTimeout(()=>finTab(document.querySelectorAll('#pg-finance .tbbtn')[2],'resum'),100)">
-        <div><div class="cl">📊 Resumo financeiro</div><div class="cs">Entradas, saídas e saldo</div></div>
+      <div class="crow" onclick="closeOv('ov-admin-menu');goTo('finance',null)">
+        <div><div class="cl">💰 Finanças</div><div class="cs">Mensalidades, despesas e resumo</div></div>
         <div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
       </div>
     </div>
@@ -537,6 +539,13 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
       <button class="boutl" onclick="openOv('ov-addrole')">+ Adicionar função</button>
     </div>
 
+    <!-- CARGOS -->
+    <div class="slbl">Cargos</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="rwrap" id="cargos-wrap-adm"></div>
+      <button class="boutl" onclick="openOv('ov-addcargo')">+ Adicionar cargo</button>
+    </div>
+
     <!-- ORIXÁS -->
     <div class="slbl">Orixás</div>
     <div class="card" style="margin-bottom:14px">
@@ -584,7 +593,16 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     <div class="mcard"><div class="mlbl">Despesas</div><div class="mval r" id="h-desp">R$0</div><div style="font-size:11px;color:var(--tmu);margin-top:3px" id="h-desp-sub">lançamentos</div></div>
   </div>
   <div class="pi">
-    <!-- PIX HOME CARD -->
+    <!-- VENCIMENTO BANNER -->
+    <div id="due-banner" style="display:none;border-radius:var(--rmd);padding:13px 15px;margin-bottom:14px;cursor:pointer" onclick="if(isAdmin)openCfgFee()">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="due-icon" style="font-size:22px;flex-shrink:0"></span>
+        <div style="flex:1;min-width:0">
+          <div id="due-title" style="font-size:14px;font-weight:600;margin-bottom:2px"></div>
+          <div id="due-sub" style="font-size:12px;opacity:.85"></div>
+        </div>
+      </div>
+    </div>
     <div id="home-pix-card" style="display:none;background:var(--sf);border:1px solid var(--bo);border-radius:var(--rmd);padding:14px 15px;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px">
         <svg viewBox="0 0 512 512" style="width:18px;height:18px;flex-shrink:0;fill:var(--pm)" xmlns="http://www.w3.org/2000/svg"><path d="M242.4 292.5C247.8 287.1 254.4 284.4 261.1 284.4C267.8 284.4 274.4 287.1 279.8 292.5L354.2 366.9C368.8 381.5 391.5 381.5 406 366.9L448 324.9L261.1 138L74.15 324.9L116.2 366.9C130.7 381.5 153.4 381.5 168 366.9L242.4 292.5zM270.8 381.7C265.4 387.1 258.8 389.8 252.1 389.8C245.4 389.8 238.8 387.1 233.4 381.7L158.1 307.3C148.4 297.5 131.5 297.5 121.8 307.3L67.28 361.8L143.8 438.3C173.5 468 220.7 468 250.4 468L261.1 468L271.8 468C301.5 468 348.7 468 378.4 438.3L454.9 361.8L400.3 307.3C390.6 297.5 373.7 297.5 364 307.3L270.8 381.7zM261.1 44L74.15 231L100.8 257.6C110.5 267.4 127.4 267.4 137.1 257.6L233.4 161.4C238.8 155.1 245.4 153.2 252.1 153.2C258.8 153.2 265.4 156.9 270.8 161.4L367.1 257.6C376.8 267.4 393.7 267.4 403.4 257.6L430.1 231L261.1 44z"/></svg>
@@ -659,29 +677,6 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
       <button class="tbbtn" onclick="finTab(this,'resum')">Resumo</button>
     </div>
     <div id="ft-mens">
-      <!-- PIX PANEL -->
-      <div id="pix-panel" style="display:none;background:var(--sf);border:1px solid var(--bo);border-radius:var(--rmd);padding:14px 15px;margin-bottom:12px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0" fill="none" stroke="var(--pm)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          <span style="font-size:14px;font-weight:500;color:var(--tm)">Pagar via Pix</span>
-        </div>
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div id="pix-qr-wrap" style="flex-shrink:0;width:110px;height:110px;background:#fff;border:1px solid var(--bo);border-radius:var(--rsm);display:flex;align-items:center;justify-content:center;overflow:hidden">
-            <img id="pix-qr-img" src="" alt="QR Code Pix" style="width:104px;height:104px;object-fit:contain;display:none"/>
-            <span id="pix-qr-empty" style="font-size:11px;color:var(--tl);text-align:center;padding:4px">Configure a chave Pix</span>
-          </div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:11px;color:var(--tmu);margin-bottom:3px">Beneficiário</div>
-            <div id="pix-name-lbl" style="font-size:14px;font-weight:500;color:var(--tm);margin-bottom:8px">—</div>
-            <div style="font-size:11px;color:var(--tmu);margin-bottom:3px">Chave Pix</div>
-            <div id="pix-key-lbl" style="font-size:13px;color:var(--tm);word-break:break-all;margin-bottom:10px">—</div>
-            <button id="pix-copy-btn" onclick="copyPixKey()" style="width:100%;background:var(--p);color:#fff;border:none;border-radius:var(--rsm);padding:9px;font-size:13px;font-family:var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation">
-              <svg viewBox="0 0 24 24" style="width:13px;height:13px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              Copiar chave Pix
-            </button>
-          </div>
-        </div>
-      </div>
       <div class="pcard">
         <div class="plbl">Arrecadado este mês</div>
         <div class="pamt" id="prog-amt">R$ 0</div>
@@ -712,6 +707,17 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
         <div class="bcrd"><div class="blbl">Saldo</div><div class="bval" id="r-saldo">R$0</div></div>
       </div>
     </div>
+  </div>
+</div>
+<!-- VITRINE MODAL -->
+<div class="vmodal" id="vmodal" onclick="if(event.target===this)closeVModal()">
+  <button class="vmodal-close" onclick="closeVModal()">✕</button>
+  <img id="vmodal-img" src="" alt="" class="vmodal-img" style="display:none"/>
+  <div id="vmodal-color-bg" style="display:none;width:100%;max-width:600px;height:220px;border-radius:0 0 12px 12px"></div>
+  <div class="vmodal-txt">
+    <div class="vmodal-title" id="vmodal-title"></div>
+    <div class="vmodal-body" id="vmodal-body"></div>
+    <a id="vmodal-link" href="#" target="_blank" class="vmodal-link" style="display:none"></a>
   </div>
 </div>
 
@@ -780,6 +786,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   <div class="fld"><label>Nome completo *</label><input id="nm-nome" type="text" placeholder="Maria Aparecida"/></div>
   <div class="fld"><label>Data de nascimento</label><input id="nm-nasc" type="date"/></div>
   <div class="fld"><label>Função no axé</label><select id="nm-role"></select></div>
+  <div class="fld"><label>Cargo</label><select id="nm-cargo"><option value="">— Sem cargo —</option></select></div>
   <div class="fld"><label>Orixá</label><select id="nm-orixa"></select></div>
   <div class="fld"><label>Orunko</label><input id="nm-orunko" type="text" placeholder="Nome de santo"/></div>
   <div class="fld"><label>Odú</label><input id="nm-odu" type="text" placeholder="Ex: Ogbe, Oyeku..."/></div>
@@ -822,6 +829,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     <div class="fld"><label>Nome completo</label><input id="det-nome" type="text"/></div>
     <div class="fld"><label>Data de nascimento</label><input id="det-nasc" type="date"/></div>
     <div class="fld"><label>Função no axé</label><select id="det-funcao"></select></div>
+    <div class="fld"><label>Cargo</label><select id="det-cargo"><option value="">— Sem cargo —</option></select></div>
     <div class="fld"><label>Orixá</label><select id="det-orixa"></select></div>
     <div class="fld"><label>Orunko</label><input id="det-orunko" type="text" placeholder="Nome de santo"/></div>
     <div class="fld"><label>Odú</label><input id="det-odu" type="text" placeholder="Ex: Ogbe, Oyeku..."/></div>
@@ -897,8 +905,10 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 <!-- CONFIG SHEETS -->
 <div class="ov" id="ov-name" style="z-index:200" onclick="if(event.target===this)closeOv('ov-name')"><div class="sheet"><div class="sh"></div><div class="stit">Nome do barracão</div><div class="fld"><label>Nome</label><input id="cfg-name-i" type="text"/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-name')">Cancelar</button><button class="bsave" onclick="saveName()">Salvar</button></div></div></div>
 <div class="ov" id="ov-addr" style="z-index:200" onclick="if(event.target===this)closeOv('ov-addr')"><div class="sheet"><div class="sh"></div><div class="stit">Endereço</div><div class="fld"><label>Endereço</label><input id="cfg-addr-i" type="text" placeholder="Rua, número, bairro..."/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-addr')">Cancelar</button><button class="bsave" onclick="saveAddr()">Salvar</button></div></div></div>
-<div class="ov" id="ov-fee" style="z-index:200" onclick="if(event.target===this)closeOv('ov-fee')"><div class="sheet"><div class="sh"></div><div class="stit">Mensalidade</div><div class="fld"><label>Valor mensal (R$)</label><input id="cfg-fee-i" type="number" min="0" step="10"/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-fee')">Cancelar</button><button class="bsave" onclick="saveFee()">Salvar</button></div></div></div>
+<div class="ov" id="ov-fee" style="z-index:200" onclick="if(event.target===this)closeOv('ov-fee')"><div class="sheet"><div class="sh"></div><div class="stit">Mensalidade</div><div class="fld"><label>Valor mensal (R$)</label><input id="cfg-fee-i" type="number" min="0" step="10"/></div><div class="fld"><label>Dia de vencimento</label><input id="cfg-due-i" type="number" min="1" max="28" placeholder="Ex: 10 (dia do mês)"/><div style="font-size:11px;color:var(--tmu);margin-top:4px">Dia do mês em que a mensalidade vence (1–28)</div></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-fee')">Cancelar</button><button class="bsave" onclick="saveFee()">Salvar</button></div></div></div>
 <div class="ov" id="ov-addrole" style="z-index:200" onclick="if(event.target===this)closeOv('ov-addrole')"><div class="sheet"><div class="sh"></div><div class="stit">Adicionar função</div><div class="fld"><label>Nome da função</label><input id="nr-i" type="text" placeholder="Ex: Alabê, Iyalorixá..."/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-addrole')">Cancelar</button><button class="bsave" onclick="addRole()">Adicionar</button></div></div></div>
+
+<div class="ov" id="ov-addcargo" style="z-index:200" onclick="if(event.target===this)closeOv('ov-addcargo')"><div class="sheet"><div class="sh"></div><div class="stit" id="cargo-sheet-title">Adicionar cargo</div><input type="hidden" id="cargo-edit-idx" value="-1"/><div class="fld"><label>Nome do cargo</label><input id="cargo-i" type="text" placeholder="Ex: Zelador(a), Tesoureiro(a)..."/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-addcargo')">Cancelar</button><button class="bsave" onclick="saveCargo()">Salvar</button></div></div></div>
 
 <!-- ADD/EDIT ORIXA -->
 <div class="ov" id="ov-addorixa" style="z-index:200" onclick="if(event.target===this)closeOv('ov-addorixa')">
@@ -956,12 +966,13 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 const KEY='ase_v5';
 const PALETTE=[{n:'Bordô',h:'#5c1a1a'},{n:'Índigo',h:'#1a2a5c'},{n:'Verde',h:'#1e4d1a'},{n:'Preto',h:'#1a1a1a'},{n:'Violeta',h:'#3d1a5c'},{n:'Teal',h:'#1a4d4a'},{n:'Café',h:'#4a2c0a'},{n:'Azul',h:'#0a2a4a'}];
 let S={
-  name:'Asé Ogun dá lè ko',address:'',fee:100,color:'#5c1a1a',adminPwd:'admin123',
+  name:'Asé Ogun dá lè ko',address:'',fee:100,dueDay:10,color:'#5c1a1a',adminPwd:'admin123',
   gasUrl:'',driveUrl:'',sheetUrl:'',
   pixKey:'',pixName:'',
   ghUser:'',ghRepo:'',ghToken:'',
   roles:['Abiã','Yaô','Ekedy','Ogã','Pai Pequeno','Yá Lorixá'],
   orixas:['Exu','Ogum','Oxóssi','Ossaim','Obaluaê','Xangô','Oxumarê','Ibeji','Logunedé','Oxum','Iansã','Nanã','Yemanjá','Obá','Ewá','Oxalá'],
+  cargos:['Zelador(a)','Vice-zelador(a)','Secretário(a)','Tesoureiro(a)','Ogã Adjunto'],
   slides:[
     {id:1,type:'text',title:'Bem-vindo ao axé!',body:'Que Ogun abra os seus caminhos.\nLaroyê!',color:'#5c1a1a',link:'',linkLabel:''},
     {id:2,type:'text',title:'Obrigação de Ogun',body:'01 de junho · 20h00 · Barracão',color:'#3d1a5c',link:'',linkLabel:''},
@@ -991,7 +1002,9 @@ let S={
   ]
 };
 let isAdmin=false;
-function loadS(){try{const d=localStorage.getItem(KEY);if(d){const p=JSON.parse(d);S={...S,...p};}}catch(e){}}
+function loadS(){try{const d=localStorage.getItem(KEY);if(d){const p=JSON.parse(d);S={...S,...p};}}catch(e){}
+  if(!S.cargos)S.cargos=[];
+}
 function saveS(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 loadS();
 
@@ -1005,24 +1018,21 @@ function applyColor(hex){
   D.setProperty('--pp',`rgba(${r},${g},${b},.08)`);D.setProperty('--pmut',`rgba(${r},${g},${b},.25)`);
   D.setProperty('--bo',`rgba(${r},${g},${b},.15)`);
   document.getElementById('meta-theme').content=hex;
-  const cc=document.getElementById('custom-color');if(cc)cc.value=hex;
+  const cc=document.getElementById('custom-color-adm');if(cc)cc.value=hex;
   renderSwatches();saveS();
 }
 function renderSwatches(targetId){
-  const ids=targetId?[targetId]:['csw','csw-panel','csw-adm'];
+  const ids=targetId?[targetId]:['csw-adm'];
   ids.forEach(id=>{
     const w=document.getElementById(id);if(!w)return;
     w.innerHTML=PALETTE.map(c=>`<div class="sw${c.h===S.color?' sel':''}" style="background:${c.h}" title="${c.n}" onclick="applyColor('${c.h}')"></div>`).join('');
   });
-  if(!targetId){
-    ['custom-color','custom-color-adm'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=S.color||'#5c1a1a';});
-  }
+  const cc=document.getElementById('custom-color-adm');if(cc)cc.value=S.color||'#5c1a1a';
 }
 
 // ══ OVERLAY / SHEET HELPERS ════════════════════
 function openOv(id){
   document.getElementById(id).classList.add('on');
-  if(id==='ov-addrole-panel'){ syncRolesPanel(); }
 }
 function syncConfigPanel(){ renderAdminPanel(); }
 function syncAdminPanel(){ renderAdminPanel(); }
@@ -1039,7 +1049,7 @@ function renderAdminPanel(){
   // identidade
   const nm=document.getElementById('adm-cfg-nm'); if(nm)nm.textContent=S.name;
   const ad=document.getElementById('adm-cfg-addr'); if(ad)ad.textContent=S.address||'Não informado';
-  const fe=document.getElementById('adm-cfg-fee'); if(fe)fe.textContent='R$ '+S.fee.toLocaleString('pt-BR')+',00/mês';
+  const fe=document.getElementById('adm-cfg-fee'); if(fe)fe.textContent='R$ '+S.fee.toLocaleString('pt-BR')+',00/mês · vence dia '+(S.dueDay||'—');
   // pix
   const px=document.getElementById('adm-pix-sub'); if(px)px.textContent=S.pixKey||'Não configurada';
   // cores
@@ -1047,6 +1057,7 @@ function renderAdminPanel(){
   // funções / orixas
   renderRoles('roles-wrap-adm2');
   renderOrixas('orixas-wrap-adm2');
+  renderCargos('cargos-wrap-adm');
   // vitrine
   renderSlidesAdm('slides-adm-inline');
   // google overlay pre-fill
@@ -1054,23 +1065,7 @@ function renderAdminPanel(){
   if(document.getElementById('drive-url-i'))document.getElementById('drive-url-i').value=S.driveUrl||'';
   if(document.getElementById('sheet-url-i'))document.getElementById('sheet-url-i').value=S.sheetUrl||'';
 }
-function syncRolesPanel(){
-  // mirror roles-wrap
-  const src=document.getElementById('roles-wrap');
-  const dst=document.getElementById('roles-wrap-panel');
-  if(src&&dst)dst.innerHTML=src.innerHTML;
-  // mirror orixas-wrap
-  const os=document.getElementById('orixas-wrap');
-  const od=document.getElementById('orixas-wrap-panel');
-  if(os&&od)od.innerHTML=os.innerHTML;
-  // mirror swatches
-  const sw=document.getElementById('csw');
-  const swp=document.getElementById('csw-panel');
-  if(sw&&swp)swp.innerHTML=sw.innerHTML;
-  const cc=document.getElementById('custom-color');
-  const ccp=document.getElementById('custom-color-panel');
-  if(cc&&ccp)ccp.value=cc.value;
-}
+function syncRolesPanel(){ renderRoles(); renderOrixas(); }
 function closeOv(id){document.getElementById(id).classList.remove('on');}
 let cvCb=null;
 function showConfirm(msg,cb){document.getElementById('csub').textContent=msg;cvCb=cb;document.getElementById('cov').classList.add('on');document.getElementById('cbtn').onclick=()=>{closeCov();cvCb&&cvCb();};}
@@ -1100,6 +1095,8 @@ function doAdminMenuLogin(){
     isAdmin=true;
     const amob=document.getElementById('abtn-mob'); if(amob){amob.style.color='var(--pm)';amob.style.fontWeight='700';}
     const ffb=document.getElementById('fin-fee-btn'); if(ffb)ffb.style.display='flex';
+    const nm=document.getElementById('nav-members'); if(nm)nm.style.display='flex';
+    const dnm=document.getElementById('desk-nav-members'); if(dnm)dnm.style.display='flex';
     document.getElementById('mem-fab').style.display='flex';
     document.getElementById('cal-fab').style.display='flex';
     // switch panel to logged-in state
@@ -1115,11 +1112,12 @@ function logout(){
   isAdmin=false;
   const amob=document.getElementById('abtn-mob'); if(amob){amob.style.color='';amob.style.fontWeight='';}
   const ffb=document.getElementById('fin-fee-btn'); if(ffb)ffb.style.display='none';
+  const nm=document.getElementById('nav-members'); if(nm)nm.style.display='none';
+  const dnm=document.getElementById('desk-nav-members'); if(dnm)dnm.style.display='none';
   document.getElementById('mem-fab').style.display='none';
   document.getElementById('cal-fab').style.display='none';
-  // if on finance or settings page, go home
   const cur=document.querySelector('.pg.on');
-  if(cur&&(cur.id==='pg-finance'||cur.id==='pg-settings'))
+  if(cur&&(cur.id==='pg-finance'||cur.id==='pg-members'))
     goTo('home',document.querySelector('.nb'));
   toast('Saiu do modo admin.');
   renderMembers();
@@ -1172,10 +1170,10 @@ function renderVitrine(){
     tr.innerHTML='<div style="width:100%;min-height:80px;display:flex;align-items:center;justify-content:center;background:var(--sf)"><p style="font-size:13px;color:var(--tmu)">Nenhum card.</p></div>';
     dt.innerHTML='';return;
   }
-  tr.innerHTML=S.slides.map(s=>{
+  tr.innerHTML=S.slides.map((s,i)=>{
     if(s.type==='image'&&s.imgData)
-      return`<div class="vslide" style="width:100%"><img src="${s.imgData}"/><div class="vov"></div><div class="vc"><div class="vtit">${s.title}</div>${s.body?`<div class="vbody">${s.body}</div>`:''} ${s.link?`<a href="${s.link}" target="_blank" class="vlink">${s.linkLabel||'Ver mais'}</a>`:''}</div></div>`;
-    return`<div class="vslide txt" style="background:${s.color||S.color};width:100%"><div class="vc"><div class="vtit">${s.title}</div>${s.body?`<div class="vbody">${s.body}</div>`:''} ${s.link?`<a href="${s.link}" target="_blank" class="vlink">${s.linkLabel||'Ver mais'}</a>`:''}</div></div>`;
+      return`<div class="vslide" style="width:100%" onclick="openVModal(${i})"><img src="${s.imgData}"/><div class="vov"></div><div class="vc"><div class="vtit">${s.title}</div>${s.body?`<div class="vbody">${s.body}</div>`:''} ${s.link?`<a href="${s.link}" target="_blank" class="vlink" onclick="event.stopPropagation()">${s.linkLabel||'Ver mais'}</a>`:''}</div></div>`;
+    return`<div class="vslide txt" style="background:${s.color||S.color};width:100%" onclick="openVModal(${i})"><div class="vc"><div class="vtit">${s.title}</div>${s.body?`<div class="vbody">${s.body}</div>`:''} ${s.link?`<a href="${s.link}" target="_blank" class="vlink" onclick="event.stopPropagation()">${s.linkLabel||'Ver mais'}</a>`:''}</div></div>`;
   }).join('');
   dt.innerHTML=S.slides.map((_,i)=>`<div class="vdot${i===slIdx?' on':''}" onclick="goSlide(${i})"></div>`).join('');
   goSlide(slIdx<S.slides.length?slIdx:0);
@@ -1187,10 +1185,80 @@ function goSlide(i){
   document.getElementById('vtrack').style.transform=`translateX(-${i*100}%)`;
   document.querySelectorAll('.vdot').forEach((d,j)=>d.classList.toggle('on',j===i));
 }
+function openVModal(i){
+  const s=S.slides[i];
+  const modal=document.getElementById('vmodal');
+  const img=document.getElementById('vmodal-img');
+  const bg=document.getElementById('vmodal-color-bg');
+  if(s.type==='image'&&s.imgData){
+    img.src=s.imgData; img.style.display='block';
+    bg.style.display='none';
+  } else {
+    img.style.display='none';
+    bg.style.background=s.color||S.color;
+    bg.style.display='block';
+  }
+  document.getElementById('vmodal-title').textContent=s.title;
+  document.getElementById('vmodal-body').textContent=s.body||'';
+  const lnk=document.getElementById('vmodal-link');
+  if(s.link){lnk.href=s.link;lnk.textContent=s.linkLabel||'Ver mais';lnk.style.display='inline-block';}
+  else{lnk.style.display='none';}
+  modal.classList.add('on');
+  modal.scrollTop=0;
+}
+function closeVModal(){
+  document.getElementById('vmodal').classList.remove('on');
+}
 
 // ══ HOME ═══════════════════════════════════════
+function renderDueBanner(){
+  const banner=document.getElementById('due-banner');
+  if(!banner)return;
+  if(!S.dueDay){banner.style.display='none';return;}
+
+  const now=new Date();
+  const today=now.getDate();
+  const month=now.getMonth();
+  const year=now.getFullYear();
+  const due=S.dueDay;
+
+  // Days until next due date
+  let nextDue=new Date(year,month,due);
+  if(today>due) nextDue=new Date(year,month+1,due);
+  const diff=Math.round((nextDue-now)/(1000*60*60*24));
+
+  const icon=document.getElementById('due-icon');
+  const title=document.getElementById('due-title');
+  const sub=document.getElementById('due-sub');
+  const dueStr=`dia ${due} de ${nextDue.toLocaleString('pt-BR',{month:'long'})}`;
+
+  // Color logic
+  let bg,color,ico,msg;
+  if(diff<0||today===due){
+    // overdue or today
+    bg='#fee2e2';color='#991b1b';ico='🚨';
+    msg=today===due?`Vence HOJE — ${dueStr}`:`Venceu há ${Math.abs(diff)} dia(s)`;
+  } else if(diff<=5){
+    // warning — 5 days or less
+    bg='#fef9c3';color='#854d0e';ico='⚠️';
+    msg=`Vence em ${diff} dia(s) — ${dueStr}`;
+  } else {
+    // ok
+    bg='#dcfce7';color='#14532d';ico='✅';
+    msg=`Próximo vencimento: ${dueStr}`;
+  }
+
+  banner.style.display='block';
+  banner.style.background=bg;
+  banner.style.color=color;
+  icon.textContent=ico;
+  title.textContent=msg;
+  sub.textContent=`Mensalidade: R$ ${S.fee.toLocaleString('pt-BR')},00`;
+}
+
 function renderHome(){
   renderPixPanel();
+  renderDueBanner();
   document.getElementById('tname').textContent=S.name;
   const rec=S.payments.filter(p=>p.status==='ok').reduce((a,p)=>a+p.value,0);
   const desp=S.expenses.reduce((a,e)=>a+e.value,0);
@@ -1229,7 +1297,7 @@ function renderMembers(q=''){
 function filterMembers(v){renderMembers(v);}
 function popRoleSel(id){const s=document.getElementById(id);if(!s)return;s.innerHTML=S.roles.map(r=>`<option>${r}</option>`).join('');}
 
-function openNewMember(){popRoleSel('nm-role');popOrixa('nm-orixa','');openOv('ov-newmem');}
+function openNewMember(){popRoleSel('nm-role');popCargoSel('nm-cargo','');popOrixa('nm-orixa','');openOv('ov-newmem');}
 function previewPhoto(inputId,prevId,lblId,dataId){
   const f=document.getElementById(inputId).files[0];if(!f)return;
   const r=new FileReader();
@@ -1243,7 +1311,7 @@ function previewPhoto(inputId,prevId,lblId,dataId){
 function addMember(){
   const name=document.getElementById('nm-nome').value.trim();
   if(!name){toast('Informe o nome');return;}
-  S.members.push({id:Date.now(),name,photo:document.getElementById('nm-photo-data').value,birthDate:document.getElementById('nm-nasc').value,role:document.getElementById('nm-role').value,orixa:document.getElementById('nm-orixa').value,orunko:document.getElementById('nm-orunko').value,odu:document.getElementById('nm-odu').value,initDate:document.getElementById('nm-init').value,assentamentos:document.getElementById('nm-assent').value,junto:document.getElementById('nm-junto').value,exu:document.getElementById('nm-exu').value,phone:document.getElementById('nm-tel').value,email:document.getElementById('nm-email').value,obs:document.getElementById('nm-obs').value});
+  S.members.push({id:Date.now(),name,photo:document.getElementById('nm-photo-data').value,birthDate:document.getElementById('nm-nasc').value,role:document.getElementById('nm-role').value,cargo:document.getElementById('nm-cargo').value,orixa:document.getElementById('nm-orixa').value,orunko:document.getElementById('nm-orunko').value,odu:document.getElementById('nm-odu').value,initDate:document.getElementById('nm-init').value,assentamentos:document.getElementById('nm-assent').value,junto:document.getElementById('nm-junto').value,exu:document.getElementById('nm-exu').value,phone:document.getElementById('nm-tel').value,email:document.getElementById('nm-email').value,obs:document.getElementById('nm-obs').value});
   saveS();closeOv('ov-newmem');renderMembers();renderHome();toast('Membro adicionado! 🌿');
   ['nm-nome','nm-nasc','nm-tel','nm-email','nm-init','nm-obs','nm-orunko','nm-odu','nm-assent','nm-junto','nm-exu','nm-photo-data'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('nm-photo-prev').innerHTML='<span id="nm-photo-lbl">📷 Foto</span>';
@@ -1255,7 +1323,7 @@ function openMemDet(idx){
   if(m.photo){document.getElementById('det-av').innerHTML=`<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;}
   else{document.getElementById('det-av').textContent=ini(m.name);}
   document.getElementById('det-name').textContent=m.name;
-  document.getElementById('det-role').textContent=(m.orunko?m.orunko+' · ':'')+m.role+(m.orixa?' · '+m.orixa:'');
+  document.getElementById('det-role').textContent=(m.orunko?m.orunko+' · ':'')+m.role+(m.cargo?' | '+m.cargo:'')+(m.orixa?' · '+m.orixa:'');
   const st=mSt(m.id);
   const fd=d=>{if(!d)return'—';try{const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}catch(e){return d;}};
   document.getElementById('det-infocard').innerHTML=`
@@ -1287,6 +1355,7 @@ function toggleMemEdit(on){
     document.getElementById('det-nasc').value=m.birthDate||'';
     popRoleSel('det-funcao');
     document.getElementById('det-funcao').value=m.role;
+    popCargoSel('det-cargo', m.cargo||'');
     popOrixa('det-orixa', m.orixa||'');
     document.getElementById('det-orunko').value=m.orunko||'';
     document.getElementById('det-odu').value=m.odu||'';
@@ -1309,6 +1378,7 @@ function saveMemDet(){
   m.name=document.getElementById('det-nome').value.trim()||m.name;
   m.birthDate=document.getElementById('det-nasc').value;
   m.role=document.getElementById('det-funcao').value;
+  m.cargo=document.getElementById('det-cargo').value;
   m.orixa=document.getElementById('det-orixa').value;
   m.orunko=document.getElementById('det-orunko').value;
   m.odu=document.getElementById('det-odu').value;
@@ -1335,7 +1405,7 @@ function confirmDelMem(){
 
 // ══ ROLES ══════════════════════════════════════
 function renderRoles(targetId){
-  const ids=targetId?[targetId]:['roles-wrap','roles-wrap-panel','roles-wrap-adm2'];
+  const ids=targetId?[targetId]:['roles-wrap-adm2'];
   ids.forEach(id=>{
     const w=document.getElementById(id);if(!w)return;
     w.innerHTML=S.roles.map((r,i)=>`<div class="rtag">${r}<button onclick="delRole(${i})">×</button></div>`).join('');
@@ -1347,7 +1417,49 @@ function addRole(){
   S.roles.push(v);saveS();closeOv('ov-addrole');renderRoles();toast('Função adicionada!');
   document.getElementById('nr-i').value='';
 }
-function delRole(i){S.roles.splice(i,1);saveS();renderRoles();}
+function delRole(i){S.roles.splice(i,1);saveS();renderRoles();toast('Função removida.');}
+
+// ══ CARGOS ═════════════════════════════════════
+function renderCargos(targetId){
+  const ids=targetId?[targetId]:['cargos-wrap-adm'];
+  ids.forEach(id=>{
+    const w=document.getElementById(id);if(!w)return;
+    w.innerHTML=S.cargos.map((c,i)=>`
+      <div class="rtag">${c}
+        <button onclick="openEditCargo(${i})" style="background:none;border:none;cursor:pointer;color:var(--tl);font-size:11px;padding:0 2px;line-height:1">✏️</button>
+        <button onclick="delCargo(${i})" style="background:none;border:none;cursor:pointer;color:var(--tl);font-size:15px;padding:0 0 0 2px;line-height:1">×</button>
+      </div>`).join('');
+  });
+}
+function popCargoSel(selId, currentVal){
+  const s=document.getElementById(selId);if(!s)return;
+  s.innerHTML=`<option value="">— Sem cargo —</option>`+S.cargos.map(c=>`<option${c===(currentVal||'')?' selected':''}>${c}</option>`).join('');
+}
+function openEditCargo(i){
+  document.getElementById('cargo-edit-idx').value=i;
+  document.getElementById('cargo-sheet-title').textContent='Editar cargo';
+  document.getElementById('cargo-i').value=S.cargos[i];
+  openOv('ov-addcargo');
+}
+function saveCargo(){
+  const v=document.getElementById('cargo-i').value.trim();
+  if(!v){toast('Informe o nome do cargo.');return;}
+  const idx=parseInt(document.getElementById('cargo-edit-idx').value);
+  if(idx>=0){
+    S.cargos[idx]=v;
+  } else {
+    if(S.cargos.includes(v)){toast('Cargo já existe.');return;}
+    S.cargos.push(v);
+  }
+  saveS();closeOv('ov-addcargo');renderCargos();
+  document.getElementById('cargo-edit-idx').value=-1;
+  toast('Cargo salvo!');
+}
+function delCargo(i){
+  showConfirm(`Remover cargo "${S.cargos[i]}"?`,()=>{
+    S.cargos.splice(i,1);saveS();renderCargos();toast('Cargo removido.');
+  });
+}
 
 // ══ ORIXÁS ═════════════════════════════════════
 function popOrixa(selId, currentVal){
@@ -1356,7 +1468,7 @@ function popOrixa(selId, currentVal){
     S.orixas.map(o=>`<option${o===(currentVal||'')?' selected':''}>${o}</option>`).join('');
 }
 function renderOrixas(targetId){
-  const ids=targetId?[targetId]:['orixas-wrap','orixas-wrap-adm2'];
+  const ids=targetId?[targetId]:['orixas-wrap-adm2'];
   ids.forEach(id=>{
     const w=document.getElementById(id);if(!w)return;
     w.innerHTML=S.orixas.map((o,i)=>`
@@ -1488,7 +1600,6 @@ function finTab(btn,sec){
   renderFinance();
 }
 function renderFinance(f='all'){
-  renderPixPanel();
   const now=new Date();
   const tm=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   const paidSet=new Set(S.payments.filter(p=>p.status==='ok'&&p.month===tm).map(p=>p.memberId));
@@ -1613,26 +1724,9 @@ function renderPixPanel(){
       himg.src=qrUrl;
     }
   }
-  // finance panel (admin only area)
-  const panel=document.getElementById('pix-panel');
-  const sub=document.getElementById('cfg-pix-sub');
-  if(!panel)return;
-  if(!S.pixKey){
-    panel.style.display='none';
-    if(sub)sub.textContent='Não configurada';
-    return;
-  }
-  panel.style.display='block';
-  if(sub)sub.textContent=S.pixKey;
-  document.getElementById('pix-name-lbl').textContent=S.pixName||S.name;
-  document.getElementById('pix-key-lbl').textContent=S.pixKey;
-  const qrData=encodeURIComponent(S.pixKey);
-  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=208x208&data=${qrData}&margin=4`;
-  const img=document.getElementById('pix-qr-img');
-  const empty=document.getElementById('pix-qr-empty');
-  img.onload=()=>{img.style.display='block';empty.style.display='none';};
-  img.onerror=()=>{img.style.display='none';empty.style.display='block';empty.textContent='Erro ao gerar QR';};
-  img.src=qrUrl;
+  // finance panel removed — pix only shows on home
+  const sub=document.getElementById('adm-pix-sub');
+  if(sub)sub.textContent=S.pixKey||'Não configurada';
 }
 function openCfgPix(){
   document.getElementById('pix-name-i').value=S.pixName||'';
@@ -1673,7 +1767,13 @@ function renderSettings(){
 }
 function saveName(){const v=document.getElementById('cfg-name-i').value.trim();if(!v)return;S.name=v;saveS();closeOv('ov-name');renderAdminPanel();renderHome();document.getElementById('llogoname').textContent=v;document.getElementById('pg-title').textContent=v;toast('Nome atualizado!');}
 function saveAddr(){S.address=document.getElementById('cfg-addr-i').value.trim();saveS();closeOv('ov-addr');renderAdminPanel();toast('Endereço salvo!');}
-function saveFee(){const v=parseFloat(document.getElementById('cfg-fee-i').value);if(v>0)S.fee=v;saveS();closeOv('ov-fee');renderAdminPanel();renderFinance();toast('Mensalidade atualizada!');}
+function saveFee(){
+  const v=parseFloat(document.getElementById('cfg-fee-i').value);
+  if(v>0)S.fee=v;
+  const d=parseInt(document.getElementById('cfg-due-i').value);
+  if(d>=1&&d<=28)S.dueDay=d;
+  saveS();closeOv('ov-fee');renderAdminPanel();renderFinance();renderHome();toast('Mensalidade atualizada!');
+}
 
 // ══ GOOGLE APPS SCRIPT SYNC ════════════════════
 const GAS_CODE = `// ═══════════════════════════════════════════
@@ -1856,10 +1956,6 @@ function renderSlidesAdm(targetId){
     }).join('');}
   });
 }
-  // mirror to panel
-  const sp=document.getElementById('slides-adm-panel');
-  if(sp)sp.innerHTML=w.innerHTML;
-}
 function delSlide(i){showConfirm(`Remover "${S.slides[i].title}"?`,()=>{S.slides.splice(i,1);saveS();renderSlidesAdm();renderVitrine();toast('Card removido!');});}
 function toggleSlideF(){
   const t=document.getElementById('sl-type').value;
@@ -1972,7 +2068,11 @@ document.querySelectorAll('.crow').forEach(row=>{
 // override crow click for config fields
 function openCfgName(){document.getElementById('cfg-name-i').value=S.name;openOv('ov-name');}
 function openCfgAddr(){document.getElementById('cfg-addr-i').value=S.address;openOv('ov-addr');}
-function openCfgFee(){document.getElementById('cfg-fee-i').value=S.fee;openOv('ov-fee');}
+function openCfgFee(){
+  document.getElementById('cfg-fee-i').value=S.fee;
+  document.getElementById('cfg-due-i').value=S.dueDay||10;
+  openOv('ov-fee');
+}
 function openCfgGH(){document.getElementById('gh-user').value=S.ghUser||'';document.getElementById('gh-repo').value=S.ghRepo||'';document.getElementById('gh-token').value=S.ghToken||'';openOv('ov-github');}
 function openCfgPwd(){['pwd-cur','pwd-new','pwd-cf'].forEach(id=>document.getElementById(id).value='');openOv('ov-pwd');}
 
