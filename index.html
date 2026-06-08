@@ -138,11 +138,13 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 .cday.today{background:var(--p);color:#fff;font-weight:500}
 .cday.hev::after{content:'';width:4px;height:4px;background:var(--amb);border-radius:50%;position:absolute;bottom:1px;left:50%;transform:translateX(-50%)}
 .cday.today.hev::after{background:#fac775}
-.eli{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bo);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.eli{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bo);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .eli:last-child{border-bottom:none}
-.edot{width:7px;height:7px;border-radius:50%;background:var(--pm);flex-shrink:0}
-.etxt{font-size:14px;color:var(--tm);flex:1}
-.emeta{font-size:12px;color:var(--tmu);margin-top:1px}
+.edbox{width:44px;height:44px;border-radius:10px;background:var(--p);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;gap:0}
+.edbox .edd{font-size:18px;font-weight:700;color:#fff;line-height:1}
+.edbox .edm{font-size:9px;font-weight:600;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.5px;line-height:1;margin-top:2px}
+.etxt{font-size:14px;font-weight:500;color:var(--tm);flex:1;line-height:1.3}
+.emeta{font-size:12px;color:var(--tmu);margin-top:2px}
 
 /* ACTION BUTTONS inline */
 .iacts{display:flex;gap:5px;flex-shrink:0}
@@ -442,7 +444,6 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   <div id="fb-loading-err" style="display:none;text-align:center;max-width:280px;padding:16px;background:#fef2f2;border-radius:12px;border:1px solid #fecaca">
     <div style="font-size:22px;margin-bottom:8px">⚠️</div>
     <div id="fb-loading-err-msg" style="font-size:13px;color:#b91c1c;line-height:1.6"></div>
-    <button onclick="openOv('ov-firebase');document.getElementById('fb-loading-err').style.display='none'" style="margin-top:12px;background:#7c2d12;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-family:inherit;cursor:pointer">Configurar Firebase</button>
   </div>
 </div>
 
@@ -454,6 +455,11 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     <div class="tbname" id="tname">Asé Ogun dá lè ko</div>
     <div class="tbsub">Painel do barracão</div>
   </div>
+  <!-- User button — top right of topbar -->
+  <button id="tb-user-btn" onclick="openLoginScreen()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.15);border:none;border-radius:10px;padding:6px 10px;cursor:pointer;gap:2px;min-width:52px;-webkit-tap-highlight-color:transparent;touch-action:manipulation">
+    <svg id="tb-user-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    <span id="tb-user-lbl" style="font-size:9px;color:rgba(255,255,255,.85);font-family:var(--sans);letter-spacing:.03em;font-weight:500">Admin</span>
+  </button>
 
   <!-- Desktop sidebar nav -->
   <nav class="nav-desk" id="nav-desk">
@@ -465,8 +471,11 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
     <button class="nb-desk" data-page="finance" id="desk-nav-fin" style="display:none" onclick="goToDesk('finance',this)">
       <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Finanças</button>
-    <button class="nb-desk" id="abtn" onclick="toggleAdmin()">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Administrador</button>
+
+    <button class="nb-desk" id="nav-vitrine-desk" style="display:none" onclick="openOv('ov-admin-menu')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Vitrine</button>
+    <button class="nb-desk" id="save-btn-desk" style="display:none;color:var(--p)" onclick="fbSyncAll()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Salvar</button>
+
   </nav>
 
   <!-- Mobile action buttons (top-right) -->
@@ -481,7 +490,11 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   <button class="nb on" onclick="goTo('home',this)"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início</button>
   <button class="nb" id="nav-members" style="display:none" onclick="goTo('members',this)"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Filhos</button>
   <button class="nb" onclick="goTo('calendar',this)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
-  <button class="nb" id="abtn-mob" onclick="toggleAdminMenu()"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Admin</button>
+  <button class="nb" id="nav-fin-mob" style="display:none" onclick="goTo('finance',this)"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Finanças</button>
+
+  <button class="nb" id="nav-vitrine-mob" style="display:none" onclick="openOv('ov-admin-menu')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Vitrine</button>
+  <button class="nb" id="save-btn-mob" style="display:none;color:var(--p)" onclick="fbSyncAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Salvar</button>
+
 </nav>
 
 <!-- ADMIN MENU OVERLAY -->
@@ -503,55 +516,9 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   <div id="admin-menu-loggedin" style="display:none">
     <div class="stit">Administração</div>
 
-    <!-- FINANÇAS -->
-    <div class="slbl">Finanças</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="crow" onclick="closeOv('ov-admin-menu');goTo('finance',null)">
-        <div><div class="cl">💰 Finanças</div><div class="cs">Mensalidades, despesas e resumo</div></div>
-        <div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-      </div>
-    </div>
-
     <!-- FIREBASE -->
     <div class="slbl">🔥 Firebase — Tempo real</div>
-    <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 12px;border-bottom:1px solid var(--bo);margin-bottom:4px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div id="adm-fb-dot" style="width:9px;height:9px;border-radius:50%;background:#ccc;flex-shrink:0"></div>
-          <span id="adm-fb-txt" style="font-size:13px;color:var(--tmu)">Não configurado</span>
-        </div>
-        <button onclick="fbSyncAll()" style="background:var(--p);color:#fff;border:none;border-radius:var(--rsm);padding:6px 12px;font-size:12px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">↑ Salvar</button>
-      </div>
-      <div class="crow" onclick="openOv('ov-firebase')"><div><div class="cl">🔥 Configurar Firebase</div><div class="cs" id="adm-fb-sub">Cole as credenciais do projeto</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-      <div class="crow" onclick="fbLoadAll()"><div><div class="cl">↓ Carregar do Firebase</div><div class="cs">Puxa todos os dados da nuvem</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-      <div class="crow" onclick="fbLoginAdmin()"><div><div class="cl">🔑 Login Firebase Admin</div><div class="cs" id="adm-fb-auth-sub">Autenticar com e-mail/senha</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-    </div>
-
-    <!-- GOOGLE -->
-    <div class="slbl">Google — Sincronização</div>
-    <div class="card" style="margin-bottom:14px">
-      <div id="adm-google-status" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 12px;border-bottom:1px solid var(--bo);margin-bottom:4px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div id="adm-gsync-dot" style="width:9px;height:9px;border-radius:50%;background:#ccc;flex-shrink:0"></div>
-          <span id="adm-gsync-txt" style="font-size:13px;color:var(--tmu)">Não configurado</span>
-        </div>
-        <button onclick="syncFromGoogle()" style="background:var(--p);color:#fff;border:none;border-radius:var(--rsm);padding:6px 12px;font-size:12px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">↓ Carregar</button>
-      </div>
-      <div class="crow" onclick="openOv('ov-google')"><div><div class="cl">🔗 Configurar Google</div><div class="cs" id="adm-gas-url-sub">Cole a URL do Apps Script</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-      
-    <div class="crow" onclick="document.getElementById('cld-name-i').value=S.cloudName||'';
-      document.getElementById('cld-preset-i').value=S.cloudPreset||'';
-      openOv('ov-cloudinary')"><div><div class="cl">☁️ Configurar Cloudinary</div><div class="cs" id="adm-cld-sub">Upload de fotos direto pelo app</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-    <div class="crow" onclick="syncToGoogle()"><div><div class="cl">☁️ Salvar no Google Sheets</div><div class="cs">Envia membros, eventos e finanças</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-      <div class="crow" onclick="openDriveFolder()"><div><div class="cl">🖼️ Abrir Google Drive</div><div class="cs" id="adm-drive-sub">Pasta de fotos e arquivos</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-      <div class="crow" onclick="openSheet()"><div><div class="cl">📊 Abrir planilha</div><div class="cs" id="adm-sheet-sub">Ver dados no Google Sheets</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-      <div class="crow" onclick="exportJSON()"><div><div class="cl">💾 Backup local (JSON)</div><div class="cs">Baixar cópia no dispositivo</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-    </div>
-
-    <!-- IDENTIDADE -->
-    <div class="slbl">Identidade</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="crow" onclick="openOv('ov-name')"><div><div class="cl">Nome do barracão</div><div class="cs" id="adm-cfg-nm">—</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    <div class="card" style="margin-bottom:14px"><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
       <div class="crow" onclick="openOv('ov-addr')"><div><div class="cl">Endereço</div><div class="cs" id="adm-cfg-addr">Não informado</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
       <div class="crow" onclick="openOv('ov-fee')"><div><div class="cl">Valor da mensalidade</div><div class="cs" id="adm-cfg-fee">—</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
     </div>
@@ -598,8 +565,6 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     <div class="card" style="margin-bottom:14px">
       <div class="crow" onclick="exportFichasPDF()"><div><div class="cl">📄 Fichas de cadastro (PDF)</div><div class="cs">Uma ficha por membro</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
       <div class="crow" onclick="exportCSV()"><div><div class="cl">📊 Exportar lista (Excel/CSV)</div><div class="cs">Tabela com todos os membros</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-      <div class="crow" onclick="exportJSON()"><div><div class="cl">💾 Backup JSON</div><div class="cs">Cópia completa dos dados</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-    </div>
 
     <!-- SENHA -->
     <div class="slbl">Segurança</div>
@@ -668,13 +633,6 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 <!-- MEMBERS -->
 <div class="pg" id="pg-members">
   <div class="pi">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
-      <div class="ptit">Filhos de Santo</div>
-      <div style="display:flex;gap:6px">
-        <button onclick="exportCSV()" style="background:var(--sf);border:1px solid var(--bo);border-radius:var(--rsm);padding:6px 10px;font-size:12px;font-family:var(--sans);color:var(--tmu);cursor:pointer;display:flex;align-items:center;gap:4px;touch-action:manipulation"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Excel</button>
-        <button onclick="exportFichasPDF()" style="background:var(--p);border:none;border-radius:var(--rsm);padding:6px 10px;font-size:12px;font-family:var(--sans);color:#fff;cursor:pointer;display:flex;align-items:center;gap:4px;touch-action:manipulation"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Fichas PDF</button>
-      </div>
-    </div>
     <div class="psub" id="mem-count">0 cadastrados</div>
     <div class="swrap"><svg viewBox="0 0 24 24" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Buscar..." oninput="filterMembers(this.value)"/></div>
     <div class="card" id="members-list"></div>
@@ -772,6 +730,34 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div><!-- /pages -->
 </div><!-- /app -->
 
+
+
+<!-- FULLSCREEN LOGIN SCREEN -->
+<div id="login-screen" style="display:none;position:fixed;inset:0;background:var(--p);z-index:9000;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px">
+  <div style="width:100%;max-width:340px">
+    <div id="ls-logged-out" style="display:flex;flex-direction:column;align-items:center;gap:0">
+      <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </div>
+      <div style="font-family:var(--fs);font-size:22px;color:#fff;margin-bottom:6px;text-align:center" id="ls-barname">Asé Ogun dá lè ko</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:28px;text-transform:uppercase;letter-spacing:.08em">Acesso administrativo</div>
+      <input id="ls-pwd" type="password" placeholder="Digite a senha" style="width:100%;padding:14px 16px;border-radius:12px;border:none;font-size:15px;font-family:var(--sans);background:rgba(255,255,255,.15);color:#fff;outline:none;text-align:center;box-sizing:border-box;margin-bottom:10px" onkeydown="if(event.key==='Enter')doLsLogin()"/>
+      <div id="ls-err" style="font-size:12px;color:rgba(255,100,100,.9);min-height:16px;margin-bottom:10px;text-align:center"></div>
+      <button onclick="doLsLogin()" style="width:100%;padding:14px;border-radius:12px;border:none;background:#fff;color:var(--p);font-size:15px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-bottom:12px;touch-action:manipulation">Entrar</button>
+      <button onclick="closeLoginScreen()" style="width:100%;padding:12px;border-radius:12px;border:2px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);font-size:14px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">Cancelar</button>
+    </div>
+    <div id="ls-logged-in" style="display:none;flex-direction:column;align-items:center;gap:0">
+      <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div style="font-size:18px;font-weight:600;color:#fff;margin-bottom:4px">Administrador</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:32px">Sessão ativa</div>
+      <button onclick="openOv('ov-admin-menu');closeLoginScreen()" style="width:100%;padding:14px;border-radius:12px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:15px;font-family:var(--sans);cursor:pointer;margin-bottom:10px;touch-action:manipulation">⚙️ Painel de administração</button>
+      <button onclick="logout();closeLoginScreen()" style="width:100%;padding:14px;border-radius:12px;border:2px solid rgba(255,100,100,.4);background:transparent;color:rgba(255,150,150,.9);font-size:14px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">🚪 Sair do modo admin</button>
+      <button onclick="closeLoginScreen()" style="width:100%;padding:12px;border-radius:12px;border:2px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.6);font-size:13px;font-family:var(--sans);cursor:pointer;margin-top:8px;touch-action:manipulation">Fechar</button>
+    </div>
+  </div>
+</div>
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -936,60 +922,6 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 
 <!-- GOOGLE CONFIG -->
-<div class="ov" id="ov-google" style="z-index:400" onclick="if(event.target===this)closeOv('ov-google')">
-<div class="sheet">
-  <div class="sh"></div>
-  <div class="stit">🔗 Vincular Google</div>
-
-  <div style="background:var(--pp);border-radius:var(--rmd);padding:13px;margin-bottom:14px;font-size:13px;color:var(--pm);line-height:1.7">
-    <strong>Como configurar (5 minutos):</strong><br>
-    1. Acesse <strong>script.google.com</strong><br>
-    2. Clique em <strong>"Novo projeto"</strong><br>
-    3. Cole o código do botão abaixo<br>
-    4. Clique em <strong>Implantar → Nova implantação</strong><br>
-    5. Tipo: <strong>App da Web</strong> → Quem acessa: <strong>Qualquer pessoa</strong><br>
-    6. Copie a <strong>URL da implantação</strong> e cole aqui
-  </div>
-
-  <button onclick="copyGASCode()" style="width:100%;background:var(--sf);border:1px solid var(--bo);border-radius:var(--rsm);padding:10px;font-size:13px;font-family:var(--sans);color:var(--pm);cursor:pointer;margin-bottom:12px;touch-action:manipulation">📋 Copiar código do Apps Script</button>
-
-  <div class="fld"><label>URL do Apps Script (implantação)</label><input id="gas-url-i" type="url" placeholder="https://script.google.com/macros/s/.../exec"/></div>
-  <div class="fld"><label>Link da pasta do Google Drive (fotos)</label><input id="drive-url-i" type="url" placeholder="https://drive.google.com/drive/folders/..."/></div>
-  <div class="fld"><label>Link da planilha Google Sheets</label><input id="sheet-url-i" type="url" placeholder="https://docs.google.com/spreadsheets/d/.../edit"/></div>
-
-  <div class="sbtns">
-    <button class="bcancel" onclick="closeOv('ov-google')">Cancelar</button>
-    <button class="bsave" onclick="saveGoogleConfig()">Salvar</button>
-  </div>
-</div>
-</div>
-
-<!-- CLOUDINARY CONFIG -->
-<div class="ov" id="ov-cloudinary" style="z-index:400" onclick="if(event.target===this)closeOv('ov-cloudinary')">
-<div class="sheet">
-  <div class="sh"></div>
-  <div class="stit">☁️ Configurar Cloudinary</div>
-
-  <div style="background:var(--pp);border-radius:var(--rmd);padding:13px;margin-bottom:14px;font-size:13px;color:var(--pm);line-height:1.7">
-    <strong>Como configurar (5 minutos):</strong><br>
-    1. Acesse <strong>cloudinary.com</strong> e crie uma conta gratuita<br>
-    2. No dashboard, copie o <strong>Cloud Name</strong> (ex: <em>dxyz1234</em>)<br>
-    3. Vá em <strong>Settings → Upload → Upload presets</strong><br>
-    4. Clique em <strong>Add upload preset</strong><br>
-    5. Defina <strong>Signing Mode: Unsigned</strong><br>
-    6. Dê o nome <strong>ase_unsigned</strong> (ou qualquer um)<br>
-    7. Cole os dois valores abaixo e salve
-  </div>
-
-  <div class="fld"><label>Cloud Name</label><input id="cld-name-i" type="text" placeholder="ex: dxyz1234" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
-  <div class="fld"><label>Upload Preset (Unsigned)</label><input id="cld-preset-i" type="text" placeholder="ex: ase_unsigned" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
-
-  <div id="cld-test-result" style="display:none;padding:10px 12px;border-radius:var(--rsm);font-size:13px;margin-bottom:12px"></div>
-
-  <div class="sbtns">
-    <button class="bcancel" onclick="closeOv('ov-cloudinary')">Cancelar</button>
-    <button class="bsave" onclick="saveCloudinaryConfig()">Salvar</button>
-  </div>
 </div>
 </div>
 
@@ -1053,69 +985,9 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 
 <!-- FIREBASE CONFIG -->
-<div class="ov" id="ov-firebase" style="z-index:400" onclick="if(event.target===this)closeOv('ov-firebase')">
-<div class="sheet">
-  <div class="sh"></div>
-  <div class="stit">🔥 Configurar Firebase</div>
-  <div style="background:var(--pp);border-radius:var(--rmd);padding:13px;margin-bottom:14px;font-size:13px;color:var(--pm);line-height:1.7">
-    <strong>Como configurar (5 minutos):</strong><br>
-    1. Acesse <strong>console.firebase.google.com</strong><br>
-    2. Crie um projeto → Adicionar app (Web &lt;/&gt;)<br>
-    3. Copie as credenciais e cole abaixo<br>
-    4. Ative <strong>Firestore</strong>, <strong>Storage</strong> e <strong>Authentication</strong><br>
-    5. Em Auth: ative <strong>E-mail/Senha</strong> e crie uma conta admin<br>
-    6. Em Firestore/Storage: publique as regras abaixo
-  </div>
-  <details style="margin-bottom:12px">
-    <summary style="font-size:12px;color:var(--pm);cursor:pointer;padding:8px 0">📋 Ver regras do Firestore e Storage</summary>
-    <div style="background:#1a1a1a;color:#7ec8a0;border-radius:var(--rsm);padding:10px;font-size:11px;font-family:monospace;margin-top:8px;line-height:1.6;overflow-x:auto">
-      <strong style="color:#fac775">// Firestore rules</strong><br>
-      rules_version = '2';<br>
-      service cloud.firestore {<br>
-      &nbsp;match /databases/{db}/documents {<br>
-      &nbsp;&nbsp;match /config/{doc} { allow read; allow write: if request.auth != null; }<br>
-      &nbsp;&nbsp;match /members/{doc} { allow read; allow write: if request.auth != null; }<br>
-      &nbsp;&nbsp;match /events/{doc} { allow read; allow write: if request.auth != null; }<br>
-      &nbsp;&nbsp;match /payments/{doc} { allow read; allow write: if request.auth != null; }<br>
-      &nbsp;&nbsp;match /expenses/{doc} { allow read; allow write: if request.auth != null; }<br>
-      &nbsp;&nbsp;match /slides/{doc} { allow read; allow write: if request.auth != null; }<br>
-      &nbsp;}}<br>
-      <br>
-      <strong style="color:#fac775">// Storage rules</strong><br>
-      rules_version = '2';<br>
-      service firebase.storage {<br>
-      &nbsp;match /b/{bucket}/o {<br>
-      &nbsp;&nbsp;match /photos/{file} { allow read; allow write: if request.auth != null; }<br>
-      &nbsp;}}<br>
-    </div>
-  </details>
-  <div class="fld"><label>API Key</label><input id="fb-apikey" type="text" placeholder="AIzaSy..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
-  <div class="fld"><label>Auth Domain</label><input id="fb-authdomain" type="text" placeholder="seu-projeto.firebaseapp.com" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
-  <div class="fld"><label>Project ID</label><input id="fb-projectid" type="text" placeholder="seu-projeto-id" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
-  <div class="fld"><label>Storage Bucket</label><input id="fb-bucket" type="text" placeholder="seu-projeto.appspot.com" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
-  <div class="fld"><label>App ID</label><input id="fb-appid" type="text" placeholder="1:xxx:web:xxx" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
-  <div id="fb-test-result" style="display:none;padding:10px 12px;border-radius:var(--rsm);font-size:13px;margin-bottom:12px"></div>
-  <div class="sbtns">
-    <button class="bcancel" onclick="closeOv('ov-firebase')">Cancelar</button>
-    <button class="bsave" onclick="saveFirebaseConfig()">Salvar e conectar</button>
-  </div>
-</div>
 </div>
 
 <!-- FIREBASE ADMIN LOGIN -->
-<div class="ov" id="ov-fb-login" style="z-index:400" onclick="if(event.target===this)closeOv('ov-fb-login')">
-<div class="sheet">
-  <div class="sh"></div>
-  <div class="stit">🔑 Login Firebase</div>
-  <div style="font-size:13px;color:var(--tmu);margin-bottom:14px;line-height:1.6">Entre com o e-mail e senha criados no Firebase Authentication para salvar dados na nuvem.</div>
-  <div class="fld"><label>E-mail</label><input id="fb-email" type="email" placeholder="admin@barracão.com"/></div>
-  <div class="fld"><label>Senha</label><input id="fb-pass" type="password" placeholder="Sua senha Firebase" onkeydown="if(event.key==='Enter')doFbLogin()"/></div>
-  <div id="fb-login-err" style="font-size:12px;color:var(--red);min-height:16px;margin-bottom:8px"></div>
-  <div class="sbtns">
-    <button class="bcancel" onclick="closeOv('ov-fb-login')">Cancelar</button>
-    <button class="bsave" onclick="doFbLogin()">Entrar</button>
-  </div>
-</div>
 </div>
 
 <script>
@@ -1201,7 +1073,7 @@ function renderAdminPanel(){
   if(dot)dot.style.background=gasOk?'#22c55e':'#ccc';
   if(txt)txt.textContent=gasOk?'Google vinculado':'Não configurado';
   const gs=document.getElementById('adm-gas-url-sub'); if(gs)gs.textContent=gasOk?'✓ Vinculado':'Cole a URL do Apps Script';
-  const cs=document.getElementById('adm-cld-sub'); if(cs)cs.textContent=(S.cloudName&&S.cloudPreset)?'✓ '+S.cloudName+' / '+S.cloudPreset:'Upload de fotos direto pelo app';
+
   const ds=document.getElementById('adm-drive-sub'); if(ds)ds.textContent=S.driveUrl?'✓ Drive vinculado':'Configure o Google primeiro';
   const ss=document.getElementById('adm-sheet-sub'); if(ss)ss.textContent=S.sheetUrl?'✓ Planilha disponível':'Salve no Google para gerar o link';
   // identidade
@@ -1255,14 +1127,23 @@ function doAdminMenuLogin(){
     const fpc=document.getElementById('fin-pix-cfg'); if(fpc)fpc.style.display='block';
     const nm=document.getElementById('nav-members'); if(nm)nm.style.display='flex';
     const dnm=document.getElementById('desk-nav-members'); if(dnm)dnm.style.display='flex';
+    const nfm=document.getElementById('nav-fin-mob'); if(nfm)nfm.style.display='flex';
+    const dff=document.getElementById('desk-nav-fin'); if(dff)dff.style.display='flex';
+    const nvitm=document.getElementById('nav-vitrine-mob'); if(nvitm)nvitm.style.display='flex';
+    const nvitd=document.getElementById('nav-vitrine-desk'); if(nvitd)nvitd.style.display='flex';
+    const sbm=document.getElementById('save-btn-mob'); if(sbm)sbm.style.display='flex';
+    const sbd=document.getElementById('save-btn-desk'); if(sbd)sbd.style.display='flex';
     document.getElementById('mem-fab').style.display='flex';
     document.getElementById('cal-fab').style.display='flex';
     // switch panel to logged-in state
     document.getElementById('admin-menu-loggedout').style.display='none';
     document.getElementById('admin-menu-loggedin').style.display='block';
     renderAdminPanel();
+    document.getElementById('tb-user-lbl').textContent='Admin ✓';
+    document.getElementById('tb-user-btn').style.background='rgba(255,255,255,.25)';
     toast('Bem-vindo, admin! Axé 🌿');
-    renderPage(document.querySelector('.pg.on').id.replace('pg-',''));
+    closeOv('ov-admin-menu');
+    goTo('home', document.querySelector('.nb-btn'));
   } else { document.getElementById('amenu-err').textContent='Senha incorreta.'; }
 }
 function doLogin(){ doAdminMenuLogin(); }
@@ -1274,11 +1155,19 @@ function logout(){
   const fpc=document.getElementById('fin-pix-cfg'); if(fpc)fpc.style.display='none';
   const nm=document.getElementById('nav-members'); if(nm)nm.style.display='none';
   const dnm=document.getElementById('desk-nav-members'); if(dnm)dnm.style.display='none';
+  const nfm2=document.getElementById('nav-fin-mob'); if(nfm2)nfm2.style.display='none';
+  const dff2=document.getElementById('desk-nav-fin'); if(dff2)dff2.style.display='none';
+  const nvitm2=document.getElementById('nav-vitrine-mob'); if(nvitm2)nvitm2.style.display='none';
+  const nvitd2=document.getElementById('nav-vitrine-desk'); if(nvitd2)nvitd2.style.display='none';
+  const sbm2=document.getElementById('save-btn-mob'); if(sbm2)sbm2.style.display='none';
+  const sbd2=document.getElementById('save-btn-desk'); if(sbd2)sbd2.style.display='none';
   document.getElementById('mem-fab').style.display='none';
   document.getElementById('cal-fab').style.display='none';
   const cur=document.querySelector('.pg.on');
   if(cur&&(cur.id==='pg-finance'||cur.id==='pg-members'))
     goTo('home',document.querySelector('.nb'));
+  document.getElementById('tb-user-lbl').textContent='Admin';
+  document.getElementById('tb-user-btn').style.background='rgba(255,255,255,.15)';
   toast('Saiu do modo admin.');
   renderMembers();
 }
@@ -1697,7 +1586,18 @@ function renderCalendar(){
       <button class="iact" onclick="event.stopPropagation();openEditEv(${idx})"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
       <button class="iact del" onclick="event.stopPropagation();confirmDelEv(${idx})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
     </div>`:'';
-    return`<div class="eli" onclick="openEvDet(${idx})"><div class="edot"></div><div style="flex:1"><div class="etxt">${e.name}</div><div class="emeta">${e.date.split('-').reverse().join('/')}${e.time?' · '+e.time+'h':''}${e.place?' · '+e.place:''}</div>${e.notes?`<div class="emeta" style="font-style:italic">${e.notes}</div>`:''}</div>${btns}</div>`;
+    const [,em,ed]=e.date.split('-');
+    const MOS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    const monLbl=MOS[parseInt(em,10)-1]||em;
+    return`<div class="eli" onclick="openEvDet(${idx})">
+      <div class="edbox"><span class="edd">${ed}</span><span class="edm">${monLbl}</span></div>
+      <div style="flex:1;min-width:0">
+        <div class="etxt">${e.name}${e.time?' · '+e.time+'h':''}</div>
+        ${e.place?`<div class="emeta">${e.place}</div>`:''}
+        ${e.notes?`<div class="emeta" style="font-style:italic;opacity:.8">${e.notes}</div>`:''}
+      </div>
+      ${btns}
+    </div>`;
   }).join('');
 }
 function changeMonth(d){calD.setMonth(calD.getMonth()+d);renderCalendar();}
@@ -2058,7 +1958,7 @@ function saveCloudinaryConfig(){
   S.cloudName = name;
   S.cloudPreset = preset;
   saveS();
-  closeOv('ov-cloudinary');
+  ;
   renderAdminPanel();
   toast('Cloudinary configurado! ☁️');
 }
@@ -2067,7 +1967,7 @@ function saveGoogleConfig(){
   S.gasUrl=document.getElementById('gas-url-i').value.trim();
   S.driveUrl=document.getElementById('drive-url-i').value.trim();
   S.sheetUrl=document.getElementById('sheet-url-i').value.trim();
-  saveS();closeOv('ov-google');renderAdminPanel();toast('Google vinculado! ✓');
+  saveS();;renderAdminPanel();toast('Google vinculado! ✓');
 }
 
 function updateGSyncStatus(state,msg){
@@ -2082,7 +1982,7 @@ function updateGSyncStatus(state,msg){
 }
 
 async function syncToGoogle(){
-  if(!S.gasUrl){toast('Configure o Google primeiro');openOv('ov-google');return;}
+  if(!S.gasUrl){return;}
   updateGSyncStatus('loading','Salvando...');
   try{
     const payload={name:S.name,address:S.address,fee:S.fee,color:S.color,members:S.members,events:S.events,payments:S.payments,expenses:S.expenses};
@@ -2098,7 +1998,7 @@ async function syncToGoogle(){
 }
 
 async function syncFromGoogle(){
-  if(!S.gasUrl){toast('Configure o Google primeiro');openOv('ov-google');return;}
+  if(!S.gasUrl){return;}
   updateGSyncStatus('loading','Carregando...');
   try{
     const res=await fetch(S.gasUrl+'?action=load');
@@ -2119,7 +2019,7 @@ async function syncFromGoogle(){
 }
 
 function openDriveFolder(){
-  if(!S.driveUrl){toast('Configure o link do Drive primeiro');openOv('ov-google');return;}
+  if(!S.driveUrl){return;}
   window.open(S.driveUrl,'_blank');
 }
 function openSheet(){
@@ -2348,7 +2248,7 @@ function saveFirebaseConfig(){
     saveFbCfg(cfg);
     res.style.background='#dcfce7';res.style.color='#14532d';
     res.textContent='✅ Firebase conectado! Agora faça login admin.';
-    setTimeout(()=>closeOv('ov-firebase'),1200);
+    setTimeout(()=>renderAdminPanel(),1200);
     renderAdminPanel();
     toast('Firebase configurado! 🔥');
   } else {
@@ -2365,15 +2265,15 @@ function openFirebaseConfig(){
   document.getElementById('fb-bucket').value=cfg.storageBucket||'';
   document.getElementById('fb-appid').value=cfg.appId||'';
   document.getElementById('fb-test-result').style.display='none';
-  openOv('ov-firebase');
+  
 }
 
 function fbLoginAdmin(){
-  if(!fbApp){toast('Configure o Firebase primeiro');openOv('ov-firebase');return;}
+  if(!fbApp){toast('Erro de conexão com Firebase');return;}
   document.getElementById('fb-email').value='';
   document.getElementById('fb-pass').value='';
   document.getElementById('fb-login-err').textContent='';
-  openOv('ov-fb-login');
+  ;
 }
 
 async function doFbLogin(){
@@ -2384,7 +2284,7 @@ async function doFbLogin(){
   if(!email||!pass){errEl.textContent='Preencha e-mail e senha.';return;}
   try{
     await fbAuth.signInWithEmailAndPassword(email,pass);
-    closeOv('ov-fb-login');
+    ;
     toast('Login Firebase realizado! 🔥');
     updateFbStatus();
     renderAdminPanel();
@@ -2463,7 +2363,7 @@ async function uploadToCloudinary(input, prevId, urlId, statusId){
 function fbCollection(col){return fbDb.collection(col);}
 
 async function fbSyncAll(){
-  if(!fbApp){toast('Configure o Firebase primeiro');openOv('ov-firebase');return;}
+  if(!fbApp){toast('Erro de conexão com Firebase');return;}
   if(!fbUser){toast('Faça login no Firebase para salvar dados');fbLoginAdmin();return;}
   toast('Salvando no Firebase... 🔥');
   try{
@@ -2506,7 +2406,7 @@ async function fbWriteArray(col,arr){
 }
 
 async function fbLoadAll(){
-  if(!fbApp){toast('Configure o Firebase primeiro');openOv('ov-firebase');return;}
+  if(!fbApp){toast('Erro de conexão com Firebase');return;}
   toast('Carregando do Firebase...');
   try{
     const [cfgSnap,memSnap,evSnap,paySnap,expSnap,slSnap]=await Promise.all([
@@ -2688,6 +2588,37 @@ async function appInit(){
   const activePg = document.querySelector('.pg.on');
   renderPage(activePg ? activePg.id.replace('pg-','') : 'home');
   setTimeout(fbHideLoading, 300);
+}
+
+// ── Login screen (fullscreen) ──────────────────────────
+function openLoginScreen(){
+  const scr=document.getElementById('login-screen');
+  scr.style.display='flex';
+  document.getElementById('ls-barname').textContent=S.name||'Asé Ogun dá lè ko';
+  document.getElementById('ls-pwd').value='';
+  document.getElementById('ls-err').textContent='';
+  if(isAdmin){
+    document.getElementById('ls-logged-out').style.display='none';
+    document.getElementById('ls-logged-in').style.display='flex';
+  } else {
+    document.getElementById('ls-logged-out').style.display='flex';
+    document.getElementById('ls-logged-in').style.display='none';
+    setTimeout(()=>document.getElementById('ls-pwd').focus(),100);
+  }
+}
+function closeLoginScreen(){
+  document.getElementById('login-screen').style.display='none';
+}
+function doLsLogin(){
+  const pwd=document.getElementById('ls-pwd').value;
+  if(pwd===S.adminPwd){
+    document.getElementById('amenu-pwd').value=pwd;
+    doAdminMenuLogin();
+    closeLoginScreen();
+  } else {
+    document.getElementById('ls-err').textContent='Senha incorreta.';
+    document.getElementById('ls-pwd').value='';
+  }
 }
 
 appInit();
