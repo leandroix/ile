@@ -2646,8 +2646,9 @@ async function appInit(){
     return;
   }
 
-  // 4. Load all data from Firestore
+  // 4. Load all data from Firestore — abre o app mesmo se banco vazio
   fbLoadingMsg('Carregando dados...', 50);
+  const keep={adminPwd:S.adminPwd,gasUrl:S.gasUrl,driveUrl:S.driveUrl,sheetUrl:S.sheetUrl,cloudName:S.cloudName||'',cloudPreset:S.cloudPreset||''};
   try{
     const [cfgSnap,memSnap,evSnap,paySnap,expSnap,slSnap]=await Promise.all([
       fbDb.collection('config').doc('main').get(),
@@ -2657,7 +2658,6 @@ async function appInit(){
       fbDb.collection('expenses').get(),
       fbDb.collection('slides').get()
     ]);
-    const keep={adminPwd:S.adminPwd,gasUrl:S.gasUrl,driveUrl:S.driveUrl,sheetUrl:S.sheetUrl,cloudName:S.cloudName||'',cloudPreset:S.cloudPreset||''};
     if(cfgSnap.exists){
       const c=cfgSnap.data();
       if(c.name)S.name=c.name; if(c.color)S.color=c.color; if(c.fee)S.fee=c.fee;
@@ -2672,17 +2672,22 @@ async function appInit(){
     if(!paySnap.empty)S.payments=paySnap.docs.map(d=>d.data());
     if(!expSnap.empty)S.expenses=expSnap.docs.map(d=>d.data());
     if(!slSnap.empty)S.slides=slSnap.docs.map(d=>d.data());
-    Object.assign(S,keep);
-    saveS();
-    applyColor(S.color);
-    fbLoadingMsg('Pronto!', 100);
-    renderPage(document.querySelector('.pg.on').id.replace('pg-',''));
-    setTimeout(fbHideLoading, 300);
   }catch(e){
-    // If offline or error
-    fbLoadingError('Sem conexão com a internet.\nEste app requer internet para funcionar.');
-    console.error('Firebase load error:',e);
+    console.error('Firebase load error:', e.code, e.message);
+    // Se for erro de permissão avisa, mas abre o app do mesmo jeito
+    if(e.code==='permission-denied'){
+      toast('⚠️ Firestore: acesso negado. Verifique as regras.');
+    }
+    // Qualquer outro erro: abre normalmente com dados locais
   }
+  // Sempre abre o app — banco vazio ou com dados
+  Object.assign(S,keep);
+  saveS();
+  applyColor(S.color);
+  fbLoadingMsg('Pronto!', 100);
+  const activePg = document.querySelector('.pg.on');
+  renderPage(activePg ? activePg.id.replace('pg-','') : 'home');
+  setTimeout(fbHideLoading, 300);
 }
 
 appInit();
