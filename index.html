@@ -2559,11 +2559,7 @@ function startFbListeners(){
   },{error:e=>console.warn('slides listener:',e)}));
 }
 
-// ── Auto-save to Firestore on data change (when admin+firebase) ──
-const _origSaveS=saveS;
-function saveS(){
-  _origSaveS();
-}
+// saveS is defined above — no override needed
 
 // override addMember, saveEvent, etc. to also push to Firestore
 function fbAutoSave(col,item){
