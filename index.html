@@ -922,7 +922,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 
 <!-- GOOGLE CONFIG -->
-<div class="ov" id="ov-google" style="z-index:200" onclick="if(event.target===this)closeOv('ov-google')">
+<div class="ov" id="ov-google" style="z-index:400" onclick="if(event.target===this)closeOv('ov-google')">
 <div class="sheet">
   <div class="sh"></div>
   <div class="stit">🔗 Vincular Google</div>
@@ -951,7 +951,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 
 <!-- CLOUDINARY CONFIG -->
-<div class="ov" id="ov-cloudinary" style="z-index:200" onclick="if(event.target===this)closeOv('ov-cloudinary')">
+<div class="ov" id="ov-cloudinary" style="z-index:400" onclick="if(event.target===this)closeOv('ov-cloudinary')">
 <div class="sheet">
   <div class="sh"></div>
   <div class="stit">☁️ Configurar Cloudinary</div>
@@ -980,15 +980,15 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 
 <!-- CONFIG SHEETS -->
-<div class="ov" id="ov-name" style="z-index:200" onclick="if(event.target===this)closeOv('ov-name')"><div class="sheet"><div class="sh"></div><div class="stit">Nome do barracão</div><div class="fld"><label>Nome</label><input id="cfg-name-i" type="text"/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-name')">Cancelar</button><button class="bsave" onclick="saveName()">Salvar</button></div></div></div>
-<div class="ov" id="ov-addr" style="z-index:200" onclick="if(event.target===this)closeOv('ov-addr')"><div class="sheet"><div class="sh"></div><div class="stit">Endereço</div><div class="fld"><label>Endereço</label><input id="cfg-addr-i" type="text" placeholder="Rua, número, bairro..."/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-addr')">Cancelar</button><button class="bsave" onclick="saveAddr()">Salvar</button></div></div></div>
-<div class="ov" id="ov-fee" style="z-index:200" onclick="if(event.target===this)closeOv('ov-fee')"><div class="sheet"><div class="sh"></div><div class="stit">Mensalidade</div><div class="fld"><label>Valor mensal (R$)</label><input id="cfg-fee-i" type="number" min="0" step="10"/></div><div class="fld"><label>Dia de vencimento</label><input id="cfg-due-i" type="number" min="1" max="28" placeholder="Ex: 10 (dia do mês)"/><div style="font-size:11px;color:var(--tmu);margin-top:4px">Dia do mês em que a mensalidade vence (1–28)</div></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-fee')">Cancelar</button><button class="bsave" onclick="saveFee()">Salvar</button></div></div></div>
-<div class="ov" id="ov-addrole" style="z-index:200" onclick="if(event.target===this)closeOv('ov-addrole')"><div class="sheet"><div class="sh"></div><div class="stit">Adicionar função</div><div class="fld"><label>Nome da função</label><input id="nr-i" type="text" placeholder="Ex: Alabê, Iyalorixá..."/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-addrole')">Cancelar</button><button class="bsave" onclick="addRole()">Adicionar</button></div></div></div>
+<div class="ov" id="ov-name" style="z-index:400" onclick="if(event.target===this)closeOv('ov-name')"><div class="sheet"><div class="sh"></div><div class="stit">Nome do barracão</div><div class="fld"><label>Nome</label><input id="cfg-name-i" type="text"/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-name')">Cancelar</button><button class="bsave" onclick="saveName()">Salvar</button></div></div></div>
+<div class="ov" id="ov-addr" style="z-index:400" onclick="if(event.target===this)closeOv('ov-addr')"><div class="sheet"><div class="sh"></div><div class="stit">Endereço</div><div class="fld"><label>Endereço</label><input id="cfg-addr-i" type="text" placeholder="Rua, número, bairro..."/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-addr')">Cancelar</button><button class="bsave" onclick="saveAddr()">Salvar</button></div></div></div>
+<div class="ov" id="ov-fee" style="z-index:400" onclick="if(event.target===this)closeOv('ov-fee')"><div class="sheet"><div class="sh"></div><div class="stit">Mensalidade</div><div class="fld"><label>Valor mensal (R$)</label><input id="cfg-fee-i" type="number" min="0" step="10"/></div><div class="fld"><label>Dia de vencimento</label><input id="cfg-due-i" type="number" min="1" max="28" placeholder="Ex: 10 (dia do mês)"/><div style="font-size:11px;color:var(--tmu);margin-top:4px">Dia do mês em que a mensalidade vence (1–28)</div></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-fee')">Cancelar</button><button class="bsave" onclick="saveFee()">Salvar</button></div></div></div>
+<div class="ov" id="ov-addrole" style="z-index:400" onclick="if(event.target===this)closeOv('ov-addrole')"><div class="sheet"><div class="sh"></div><div class="stit">Adicionar função</div><div class="fld"><label>Nome da função</label><input id="nr-i" type="text" placeholder="Ex: Alabê, Iyalorixá..."/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-addrole')">Cancelar</button><button class="bsave" onclick="addRole()">Adicionar</button></div></div></div>
 
-<div class="ov" id="ov-addcargo" style="z-index:200" onclick="if(event.target===this)closeOv('ov-addcargo')"><div class="sheet"><div class="sh"></div><div class="stit" id="cargo-sheet-title">Adicionar cargo</div><input type="hidden" id="cargo-edit-idx" value="-1"/><div class="fld"><label>Nome do cargo</label><input id="cargo-i" type="text" placeholder="Ex: Zelador(a), Tesoureiro(a)..."/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-addcargo')">Cancelar</button><button class="bsave" onclick="saveCargo()">Salvar</button></div></div></div>
+<div class="ov" id="ov-addcargo" style="z-index:400" onclick="if(event.target===this)closeOv('ov-addcargo')"><div class="sheet"><div class="sh"></div><div class="stit" id="cargo-sheet-title">Adicionar cargo</div><input type="hidden" id="cargo-edit-idx" value="-1"/><div class="fld"><label>Nome do cargo</label><input id="cargo-i" type="text" placeholder="Ex: Zelador(a), Tesoureiro(a)..."/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-addcargo')">Cancelar</button><button class="bsave" onclick="saveCargo()">Salvar</button></div></div></div>
 
 <!-- ADD/EDIT ORIXA -->
-<div class="ov" id="ov-addorixa" style="z-index:200" onclick="if(event.target===this)closeOv('ov-addorixa')">
+<div class="ov" id="ov-addorixa" style="z-index:400" onclick="if(event.target===this)closeOv('ov-addorixa')">
 <div class="sheet">
   <div class="sh"></div>
   <div class="stit" id="orixa-sheet-title">Adicionar orixá</div>
@@ -1000,7 +1000,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   </div>
 </div>
 </div>
-<div class="ov" id="ov-pix" style="z-index:200" onclick="if(event.target===this)closeOv('ov-pix')">
+<div class="ov" id="ov-pix" style="z-index:400" onclick="if(event.target===this)closeOv('ov-pix')">
 <div class="sheet">
   <div class="sh"></div>
   <div class="stit">Configurar Pix</div>
@@ -1018,11 +1018,11 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 </div>
 
-<div class="ov" id="ov-pwd" style="z-index:200" onclick="if(event.target===this)closeOv('ov-pwd')"><div class="sheet"><div class="sh"></div><div class="stit">Alterar senha</div><div class="fld"><label>Senha atual</label><input id="pwd-cur" type="password"/></div><div class="fld"><label>Nova senha</label><input id="pwd-new" type="password"/></div><div class="fld"><label>Confirmar</label><input id="pwd-cf" type="password"/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-pwd')">Cancelar</button><button class="bsave" onclick="changePwd()">Salvar</button></div></div></div>
+<div class="ov" id="ov-pwd" style="z-index:400" onclick="if(event.target===this)closeOv('ov-pwd')"><div class="sheet"><div class="sh"></div><div class="stit">Alterar senha</div><div class="fld"><label>Senha atual</label><input id="pwd-cur" type="password"/></div><div class="fld"><label>Nova senha</label><input id="pwd-new" type="password"/></div><div class="fld"><label>Confirmar</label><input id="pwd-cf" type="password"/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-pwd')">Cancelar</button><button class="bsave" onclick="changePwd()">Salvar</button></div></div></div>
 <div class="ov" id="ov-notify" onclick="if(event.target===this)closeOv('ov-notify')"><div class="sheet"><div class="sh"></div><div class="stit">Avisos</div><div style="font-size:14px;color:var(--tmu);padding:6px 0">Nenhum aviso no momento.</div><div class="sbtns"><button class="bsave" onclick="closeOv('ov-notify')">Fechar</button></div></div></div>
 
 <!-- NEW SLIDE -->
-<div class="ov" id="ov-newslide" style="z-index:200" onclick="if(event.target===this)closeOv('ov-newslide')">
+<div class="ov" id="ov-newslide" style="z-index:400" onclick="if(event.target===this)closeOv('ov-newslide')">
 <div class="sheet">
   <div class="sh"></div><div class="stit">Novo card na vitrine</div>
   <div class="fld"><label>Tipo</label><select id="sl-type" onchange="toggleSlideF()"><option value="text">Somente texto</option><option value="image">Imagem + texto</option><option value="link">Link externo</option></select></div>
@@ -1039,7 +1039,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 
 <!-- FIREBASE CONFIG -->
-<div class="ov" id="ov-firebase" style="z-index:200" onclick="if(event.target===this)closeOv('ov-firebase')">
+<div class="ov" id="ov-firebase" style="z-index:400" onclick="if(event.target===this)closeOv('ov-firebase')">
 <div class="sheet">
   <div class="sh"></div>
   <div class="stit">🔥 Configurar Firebase</div>
@@ -1089,7 +1089,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 
 <!-- FIREBASE ADMIN LOGIN -->
-<div class="ov" id="ov-fb-login" style="z-index:200" onclick="if(event.target===this)closeOv('ov-fb-login')">
+<div class="ov" id="ov-fb-login" style="z-index:400" onclick="if(event.target===this)closeOv('ov-fb-login')">
 <div class="sheet">
   <div class="sh"></div>
   <div class="stit">🔑 Login Firebase</div>
