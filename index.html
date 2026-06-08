@@ -1460,8 +1460,9 @@ function driveUrlToImg(url){
 
 // ── Cloudinary unsigned upload ──────────────────────────────────
 // Cloudinary config — lido de S (configurado pelo painel admin)
-const getCldCloud  = () => (typeof S !== 'undefined' && S.cloudName)  || '';
-const getCldPreset = () => (typeof S !== 'undefined' && S.cloudPreset) || '';
+// Cloudinary — credenciais fixas no código
+const getCldCloud  = () => 'dcuzgqqxa';
+const getCldPreset = () => 'ase_unsigned';
 
 // ────────────────────────────────────────────────────────────────
 function previewDriveUrl(url,prevId){
@@ -2628,12 +2629,14 @@ async function appInit(){
   applyColor(S.color);
   renderHome(); // show skeleton while loading
 
-  // 2. Check Firebase config
-  const cfg=getFbCfg();
-  if(!cfg||!cfg.apiKey){
-    fbLoadingError('Firebase não configurado.\nContate o administrador do barracão para configurar o app.');
-    return;
-  }
+  // 2. Firebase config — embutido no código, funciona em qualquer dispositivo
+  const cfg = getFbCfg() || {
+    apiKey:         'AIzaSyC5pyRzexFq60aFiS56Sih2xhmCb8PTVeQ',
+    authDomain:     'ase-ogun.firebaseapp.com',
+    projectId:      'ase-ogun',
+    storageBucket:  'ase-ogun.firebasestorage.app',
+    appId:          '1:993409744433:web:a37ccc5baf5935f85c5f10'
+  };
 
   // 3. Init Firebase
   fbLoadingMsg('Conectando ao Firebase...', 20);
