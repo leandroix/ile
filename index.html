@@ -432,6 +432,20 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </style>
 </head>
 <body>
+<!-- LOADING SCREEN -->
+<div id="fb-loading" style="position:fixed;inset:0;background:var(--bg,#fdf8f3);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px">
+  <div style="font-size:48px">🔥</div>
+  <div id="fb-loading-msg" style="font-size:15px;color:var(--tmu,#888);font-family:var(--sans,'Inter',sans-serif)">Conectando...</div>
+  <div style="width:48px;height:4px;border-radius:2px;background:var(--bo,#e5e0da);overflow:hidden">
+    <div id="fb-loading-bar" style="height:100%;width:0%;background:var(--p,#7c2d12);border-radius:2px;transition:width 0.4s ease"></div>
+  </div>
+  <div id="fb-loading-err" style="display:none;text-align:center;max-width:280px;padding:16px;background:#fef2f2;border-radius:12px;border:1px solid #fecaca">
+    <div style="font-size:22px;margin-bottom:8px">⚠️</div>
+    <div id="fb-loading-err-msg" style="font-size:13px;color:#b91c1c;line-height:1.6"></div>
+    <button onclick="openOv('ov-firebase');document.getElementById('fb-loading-err').style.display='none'" style="margin-top:12px;background:#7c2d12;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-family:inherit;cursor:pointer">Configurar Firebase</button>
+  </div>
+</div>
+
 <div id="app">
 
 <!-- TOPBAR / SIDEBAR -->
@@ -2522,6 +2536,7 @@ async function fbLoadAll(){
     renderPage(document.querySelector('.pg.on').id.replace('pg-',''));
     renderAdminPanel();
     toast('Dados carregados do Firebase! ✅');
+    if(isAdmin)renderAdminPanel();
   }catch(e){toast('Erro ao carregar: '+e.message);console.error(e);}
 }
 
@@ -2547,16 +2562,26 @@ function startFbListeners(){
   },{error:e=>console.warn('config listener:',e)}));
   // members
   fbListeners.push(fbDb.collection('members').onSnapshot(snap=>{
-    S.members=snap.docs.map(d=>d.data());saveS();renderMembers();renderHome();
+    S.members=snap.docs.map(d=>d.data());saveS();
+    renderMembers();renderHome();
   },{error:e=>console.warn('members listener:',e)}));
   // events
   fbListeners.push(fbDb.collection('events').onSnapshot(snap=>{
-    S.events=snap.docs.map(d=>d.data());saveS();renderCalendar();renderHome();
+    S.events=snap.docs.map(d=>d.data());saveS();
+    renderCalendar();renderHome();
   },{error:e=>console.warn('events listener:',e)}));
   // slides
   fbListeners.push(fbDb.collection('slides').onSnapshot(snap=>{
     if(!snap.empty){S.slides=snap.docs.map(d=>d.data());saveS();renderVitrine();}
   },{error:e=>console.warn('slides listener:',e)}));
+  // payments
+  fbListeners.push(fbDb.collection('payments').onSnapshot(snap=>{
+    S.payments=snap.docs.map(d=>d.data());saveS();renderFinance();renderHome();
+  },{error:e=>console.warn('payments listener:',e)}));
+  // expenses
+  fbListeners.push(fbDb.collection('expenses').onSnapshot(snap=>{
+    S.expenses=snap.docs.map(d=>d.data());saveS();renderFinance();renderHome();
+  },{error:e=>console.warn('expenses listener:',e)}));
 }
 
 // saveS is defined above — no override needed
@@ -2579,17 +2604,85 @@ function fbAutoSaveConfig(){
   }).catch(e=>console.warn('fbAutoSaveConfig:',e));
 }
 
-// ── Auto-init Firebase if config exists ──
-(function(){
-  const cfg=getFbCfg();
-  if(cfg&&cfg.apiKey){
-    try{initFirebase(cfg);}catch(e){console.warn('Firebase auto-init failed:',e);}
-  }
-})();
+// ══ INIT — Firebase é obrigatório ══════════════
+function fbLoadingMsg(msg, pct){
+  const el=document.getElementById('fb-loading-msg'); if(el)el.textContent=msg;
+  const bar=document.getElementById('fb-loading-bar'); if(bar)bar.style.width=(pct||0)+'%';
+}
+function fbLoadingError(msg){
+  document.getElementById('fb-loading-bar').style.width='100%';
+  document.getElementById('fb-loading-bar').style.background='#ef4444';
+  document.getElementById('fb-loading-msg').style.display='none';
+  const err=document.getElementById('fb-loading-err');
+  document.getElementById('fb-loading-err-msg').textContent=msg;
+  err.style.display='block';
+}
+function fbHideLoading(){
+  const el=document.getElementById('fb-loading');
+  if(el){el.style.opacity='0';el.style.transition='opacity 0.4s';setTimeout(()=>el.style.display='none',400);}
+}
 
-// ══ INIT ═══════════════════════════════════════
-applyColor(S.color);
-renderHome();
+async function appInit(){
+  // 1. Load local settings (adminPwd, firebase config, cloudinary etc)
+  loadS();
+  applyColor(S.color);
+  renderHome(); // show skeleton while loading
+
+  // 2. Check Firebase config
+  const cfg=getFbCfg();
+  if(!cfg||!cfg.apiKey){
+    fbLoadingError('Firebase não configurado.\nContate o administrador do barracão para configurar o app.');
+    return;
+  }
+
+  // 3. Init Firebase
+  fbLoadingMsg('Conectando ao Firebase...', 20);
+  const ok=initFirebase(cfg);
+  if(!ok){
+    fbLoadingError('Erro ao conectar ao Firebase.\nVerifique sua conexão com a internet.');
+    return;
+  }
+
+  // 4. Load all data from Firestore
+  fbLoadingMsg('Carregando dados...', 50);
+  try{
+    const [cfgSnap,memSnap,evSnap,paySnap,expSnap,slSnap]=await Promise.all([
+      fbDb.collection('config').doc('main').get(),
+      fbDb.collection('members').get(),
+      fbDb.collection('events').get(),
+      fbDb.collection('payments').get(),
+      fbDb.collection('expenses').get(),
+      fbDb.collection('slides').get()
+    ]);
+    const keep={adminPwd:S.adminPwd,gasUrl:S.gasUrl,driveUrl:S.driveUrl,sheetUrl:S.sheetUrl,cloudName:S.cloudName||'',cloudPreset:S.cloudPreset||''};
+    if(cfgSnap.exists){
+      const c=cfgSnap.data();
+      if(c.name)S.name=c.name; if(c.color)S.color=c.color; if(c.fee)S.fee=c.fee;
+      if(c.dueDay)S.dueDay=c.dueDay; if(c.address)S.address=c.address;
+      if(c.pixKey!==undefined)S.pixKey=c.pixKey; if(c.pixName!==undefined)S.pixName=c.pixName;
+      if(c.roles&&c.roles.length)S.roles=c.roles;
+      if(c.orixas&&c.orixas.length)S.orixas=c.orixas;
+      if(c.cargos&&c.cargos.length)S.cargos=c.cargos;
+    }
+    if(!memSnap.empty)S.members=memSnap.docs.map(d=>d.data());
+    if(!evSnap.empty)S.events=evSnap.docs.map(d=>d.data());
+    if(!paySnap.empty)S.payments=paySnap.docs.map(d=>d.data());
+    if(!expSnap.empty)S.expenses=expSnap.docs.map(d=>d.data());
+    if(!slSnap.empty)S.slides=slSnap.docs.map(d=>d.data());
+    Object.assign(S,keep);
+    saveS();
+    applyColor(S.color);
+    fbLoadingMsg('Pronto!', 100);
+    renderPage(document.querySelector('.pg.on').id.replace('pg-',''));
+    setTimeout(fbHideLoading, 300);
+  }catch(e){
+    // If offline or error
+    fbLoadingError('Sem conexão com a internet.\nEste app requer internet para funcionar.');
+    console.error('Firebase load error:',e);
+  }
+}
+
+appInit();
 </script>
 
 
