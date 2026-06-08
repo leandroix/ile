@@ -2149,7 +2149,11 @@ function addSlide(){
     if(fi.files[0]){const r=new FileReader();r.onload=e=>{slide.imgData=e.target.result;S.slides.push(slide);saveS();closeOv('ov-newslide');renderVitrine();renderSlidesAdm();toast('Card publicado!');};r.readAsDataURL(fi.files[0]);return;}
     if(url)slide.imgData=url;
   }
-  S.slides.push(slide);saveS();fbAutoSave('slides',slide);closeOv('ov-newslide');renderVitrine();renderSlidesAdm();toast('Card publicado! 🌿');
+  S.slides.push(slide);saveS();
+  // não salva base64 no Firestore — só URLs externas
+  const slideCloud={...slide};if(slideCloud.imgData&&slideCloud.imgData.startsWith('data:'))delete slideCloud.imgData;
+  fbAutoSave('slides',slideCloud);
+  closeOv('ov-newslide');renderVitrine();renderSlidesAdm();toast('Card publicado! 🌿');
   ['sl-title','sl-body','sl-img-url','sl-link','sl-lbl'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('slf-prev').style.display='none';
 }
@@ -2456,12 +2460,18 @@ async function fbSyncAll(){
       roles:S.roles,orixas:S.orixas,cargos:S.cargos||[]
     });
     await batch.commit();
-    // members, events, payments, expenses, slides - delete+write
+    // slides: remove base64 imgData (too large for Firestore, keep only external URLs)
+    const slidesClean=S.slides.map(s=>{
+      const sc={...s};
+      // if imgData is base64 (starts with data:), remove it — keep only http URLs
+      if(sc.imgData&&sc.imgData.startsWith('data:'))delete sc.imgData;
+      return sc;
+    });
     await fbWriteArray('members',S.members);
     await fbWriteArray('events',S.events);
     await fbWriteArray('payments',S.payments);
     await fbWriteArray('expenses',S.expenses);
-    await fbWriteArray('slides',S.slides);
+    await fbWriteArray('slides',slidesClean);
     toast('Tudo salvo no Firebase! ✅');
     updateFbStatus();
   }catch(e){toast('Erro ao salvar: '+e.message);console.error(e);}
@@ -2472,7 +2482,11 @@ async function fbWriteArray(col,arr){
   const snap=await fbDb.collection(col).get();
   const batch=fbDb.batch();
   snap.docs.forEach(d=>batch.delete(d.ref));
-  arr.forEach(item=>batch.set(fbDb.collection(col).doc(String(item.id)),item));
+  arr.forEach(item=>{
+    // strip undefined values — Firestore doesn't accept them
+    const clean=JSON.parse(JSON.stringify(item));
+    batch.set(fbDb.collection(col).doc(String(clean.id)),clean);
+  });
   await batch.commit();
 }
 
