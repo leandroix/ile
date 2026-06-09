@@ -2296,41 +2296,11 @@ async function doFbLogin(){
 }
 
 // ── Firebase Storage upload ─────────────────────
-async function uploadToFirebase(input, prevId, urlId, statusId){
-  const file=input.files[0];
-  if(!file)return;
-  const prev=document.getElementById(prevId);
-  const statusEl=document.getElementById(statusId);
-  // local preview imediato
-  const reader=new FileReader();
-  reader.onload=e=>{prev.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;};
-  reader.readAsDataURL(file);
-  if(statusEl)statusEl.textContent='⏫ Enviando foto...';
-  if(!fbStorage||!fbUser){
-    if(statusEl)statusEl.innerHTML='⚠️ Faça login no Firebase primeiro para enviar fotos.';
-    return;
-  }
-  try{
-    const ext=file.name.split('.').pop()||'jpg';
-    const path=`photos/${Date.now()}.${ext}`;
-    const ref=fbStorage.ref().child(path);
-    await ref.put(file);
-    const url=await ref.getDownloadURL();
-    document.getElementById(urlId).value=url;
-    if(statusEl)statusEl.textContent='✅ Foto enviada!';
-  }catch(e){
-    console.error('Firebase Storage upload error:',e);
-    if(statusEl)statusEl.textContent='❌ Erro no envio: '+e.message;
-    document.getElementById(urlId).value='';
-  }
-}
 
 // ── Choose upload method (Firebase preferred, Cloudinary fallback) ──
 async function uploadToCloudinary(input, prevId, urlId, statusId){
   // If Firebase Storage available and logged in, use it
-  if(fbStorage&&fbUser){
-    return uploadToFirebase(input,prevId,urlId,statusId);
-  }
+
   // Cloudinary fallback
   const file=input.files[0];
   if(!file)return;
@@ -2366,7 +2336,7 @@ function fbCollection(col){return fbDb.collection(col);}
 
 async function fbSyncAll(){
   if(!fbApp){toast('Erro de conexão com Firebase');return;}
-  if(!fbUser){toast('Faça login no Firebase para salvar dados');fbLoginAdmin();return;}
+  if(!isAdmin){toast('Faça login como admin primeiro');return;}
   toast('Salvando no Firebase... 🔥');
   try{
     const batch=fbDb.batch();
@@ -2491,15 +2461,15 @@ function startFbListeners(){
 
 // override addMember, saveEvent, etc. to also push to Firestore
 function fbAutoSave(col,item){
-  if(!fbDb||!fbUser)return;
+  if(!fbDb||!isAdmin)return;
   fbDb.collection(col).doc(String(item.id)).set(item).catch(e=>console.warn('fbAutoSave:',e));
 }
 function fbAutoDelete(col,id){
-  if(!fbDb||!fbUser)return;
+  if(!fbDb||!isAdmin)return;
   fbDb.collection(col).doc(String(id)).delete().catch(e=>console.warn('fbAutoDelete:',e));
 }
 function fbAutoSaveConfig(){
-  if(!fbDb||!fbUser)return;
+  if(!fbDb||!isAdmin)return;
   fbDb.collection('config').doc('main').set({
     name:S.name,address:S.address||'',fee:S.fee,dueDay:S.dueDay||10,
     color:S.color,pixKey:S.pixKey||'',pixName:S.pixName||'',
@@ -2619,10 +2589,9 @@ function doLsLogin(){
     doAdminMenuLogin._lsPwd=pwd;
     document.getElementById('amenu-pwd').value=pwd;
     doAdminMenuLogin();
-    document.getElementById('ls-logged-out').style.display='none';
-    document.getElementById('ls-logged-in').style.display='flex';
     document.getElementById('tb-user-lbl').textContent='Admin ✓';
     document.getElementById('tb-user-btn').style.background='rgba(255,255,255,.25)';
+    closeLoginScreen();
   } else {
     document.getElementById('ls-err').textContent='Senha incorreta.';
     document.getElementById('ls-pwd').value='';
