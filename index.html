@@ -581,7 +581,6 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
       <div class="ptit">Finanças</div>
       <div style="display:flex;gap:6px">
-        <button id="fin-pix-btn" style="display:none;background:var(--sf);border:1px solid var(--bo);border-radius:var(--rsm);padding:6px 12px;font-size:12px;font-family:var(--sans);color:var(--tmu);cursor:pointer;touch-action:manipulation" onclick="openCfgPix()">⬡ Pix</button>
         <button id="fin-fee-btn" style="display:none;background:var(--sf);border:1px solid var(--bo);border-radius:var(--rsm);padding:6px 12px;font-size:12px;font-family:var(--sans);color:var(--tmu);cursor:pointer" onclick="openOv('ov-fee')">💰 Mensalidade: <span id="fin-fee-lbl">R$ 100</span></button>
       </div>
     </div>
@@ -589,7 +588,6 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     <div class="tabrow">
       <button class="tbbtn on" onclick="finTab(this,'mens')">Mensalidades</button>
       <button class="tbbtn" onclick="finTab(this,'desp')">Despesas</button>
-      <button class="tbbtn" onclick="finTab(this,'resum')">Resumo</button>
     </div>
     <div id="ft-mens">
       <!-- Pix config row (admin only) -->
@@ -1099,6 +1097,7 @@ function renderAdminPanel(){
   const nm=document.getElementById('adm-cfg-nm'); if(nm)nm.textContent=S.name;
   const ad=document.getElementById('adm-cfg-addr'); if(ad)ad.textContent=S.address||'Não informado';
   const fe=document.getElementById('adm-cfg-fee'); if(fe)fe.textContent='R$ '+S.fee.toLocaleString('pt-BR')+',00/mês · vence dia '+(S.dueDay||'—');
+  const ffl=document.getElementById('fin-fee-lbl'); if(ffl)ffl.textContent='R$ '+S.fee.toLocaleString('pt-BR');
   // cores
   renderSwatches('csw-adm','custom-color-adm');
   // funções / orixas
@@ -1142,7 +1141,6 @@ function doAdminMenuLogin(){
     isAdmin=true;
     const amob=document.getElementById('abtn-mob'); if(amob){amob.style.color='var(--pm)';amob.style.fontWeight='700';}
     const ffb=document.getElementById('fin-fee-btn'); if(ffb)ffb.style.display='flex';
-    const fpb=document.getElementById('fin-pix-btn'); if(fpb)fpb.style.display='flex';
     const fpc=document.getElementById('fin-pix-cfg'); if(fpc)fpc.style.display='block';
     const nm=document.getElementById('nav-members'); if(nm)nm.style.display='flex';
     const dnm=document.getElementById('desk-nav-members'); if(dnm)dnm.style.display='flex';
@@ -1172,7 +1170,6 @@ function logout(){
   isAdmin=false;
   const amob=document.getElementById('abtn-mob'); if(amob){amob.style.color='';amob.style.fontWeight='';}
   const ffb=document.getElementById('fin-fee-btn'); if(ffb)ffb.style.display='none';
-  const fpb=document.getElementById('fin-pix-btn'); if(fpb)fpb.style.display='none';
   const fpc=document.getElementById('fin-pix-cfg'); if(fpc)fpc.style.display='none';
   const nm=document.getElementById('nav-members'); if(nm)nm.style.display='none';
   const dnm=document.getElementById('desk-nav-members'); if(dnm)dnm.style.display='none';
