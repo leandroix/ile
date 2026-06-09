@@ -765,9 +765,10 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
       </div>
       <div style="font-family:var(--fs);font-size:22px;color:#fff;margin-bottom:6px;text-align:center" id="ls-barname">Asé Ogun dá lè ko</div>
       <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:28px;text-transform:uppercase;letter-spacing:.08em">Acesso administrativo</div>
-      <input id="ls-pwd" type="password" placeholder="Digite a senha" style="width:100%;padding:14px 16px;border-radius:12px;border:none;font-size:15px;font-family:var(--sans);background:rgba(255,255,255,.15);color:#fff;outline:none;text-align:center;box-sizing:border-box;margin-bottom:10px" onkeydown="if(event.key==='Enter')doLsLogin()"/>
+      <input id="ls-email" type="email" placeholder="E-mail" style="width:100%;padding:14px 16px;border-radius:12px;border:none;font-size:15px;font-family:var(--sans);background:rgba(255,255,255,.15);color:#fff;outline:none;box-sizing:border-box;margin-bottom:10px" onkeydown="if(event.key==='Enter')document.getElementById('ls-pwd').focus()"/>
+      <input id="ls-pwd" type="password" placeholder="Senha" style="width:100%;padding:14px 16px;border-radius:12px;border:none;font-size:15px;font-family:var(--sans);background:rgba(255,255,255,.15);color:#fff;outline:none;box-sizing:border-box;margin-bottom:10px" onkeydown="if(event.key==='Enter')doLsLogin()"/>
       <div id="ls-err" style="font-size:12px;color:rgba(255,100,100,.9);min-height:16px;margin-bottom:10px;text-align:center"></div>
-      <button onclick="doLsLogin()" style="width:100%;padding:14px;border-radius:12px;border:none;background:#fff;color:var(--p);font-size:15px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-bottom:12px;touch-action:manipulation">Entrar</button>
+      <button id="ls-login-btn" onclick="doLsLogin()" style="width:100%;padding:14px;border-radius:12px;border:none;background:#fff;color:var(--p);font-size:15px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-bottom:12px;touch-action:manipulation">Entrar</button>
       <button onclick="closeLoginScreen()" style="width:100%;padding:12px;border-radius:12px;border:2px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);font-size:14px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">Cancelar</button>
     </div>
     <div id="ls-logged-in" style="display:none;flex-direction:column;align-items:center;gap:0">
@@ -2600,6 +2601,7 @@ function openLoginScreen(){
   const scr=document.getElementById('login-screen');
   scr.style.display='flex';
   document.getElementById('ls-barname').textContent=S.name||'Asé Ogun dá lè ko';
+  document.getElementById('ls-email').value='';
   document.getElementById('ls-pwd').value='';
   document.getElementById('ls-err').textContent='';
   if(isAdmin){
@@ -2614,19 +2616,45 @@ function openLoginScreen(){
 function closeLoginScreen(){
   document.getElementById('login-screen').style.display='none';
 }
-function doLsLogin(){
+async function doLsLogin(){
+  const email=document.getElementById('ls-email').value.trim();
   const pwd=document.getElementById('ls-pwd').value;
-  if(pwd===S.adminPwd){
-    // reuse existing login logic
-    doAdminMenuLogin._lsPwd=pwd;
-    document.getElementById('amenu-pwd').value=pwd;
-    doAdminMenuLogin();
-    document.getElementById('tb-user-lbl').textContent='Admin ✓';
-    document.getElementById('tb-user-btn').style.background='rgba(255,255,255,.25)';
-    closeLoginScreen();
+  const errEl=document.getElementById('ls-err');
+  const btn=document.getElementById('ls-login-btn');
+  errEl.textContent='';
+  if(!email||!pwd){errEl.textContent='Preencha e-mail e senha.';return;}
+  // Firebase Auth login
+  if(fbAuth){
+    btn.textContent='Entrando...';btn.disabled=true;
+    try{
+      await fbAuth.signInWithEmailAndPassword(email,pwd);
+      updateFbStatus();
+      // grant admin privileges via existing logic
+      document.getElementById('amenu-pwd').value=S.adminPwd;
+      doAdminMenuLogin();
+      document.getElementById('ls-pwd').value='';
+      document.getElementById('ls-email').value='';
+    }catch(e){
+      const msg=e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'?'Senha incorreta.':
+        e.code==='auth/user-not-found'?'E-mail não encontrado.':
+        e.code==='auth/invalid-email'?'E-mail inválido.':
+        'Erro: '+e.message;
+      errEl.textContent=msg;
+      document.getElementById('ls-pwd').value='';
+    }finally{
+      btn.textContent='Entrar';btn.disabled=false;
+    }
   } else {
-    document.getElementById('ls-err').textContent='Senha incorreta.';
-    document.getElementById('ls-pwd').value='';
+    // Fallback: local password (Firebase not initialised yet)
+    if(pwd===S.adminPwd){
+      document.getElementById('amenu-pwd').value=pwd;
+      doAdminMenuLogin();
+      document.getElementById('ls-pwd').value='';
+      document.getElementById('ls-email').value='';
+    } else {
+      errEl.textContent='Senha incorreta.';
+      document.getElementById('ls-pwd').value='';
+    }
   }
 }
 
