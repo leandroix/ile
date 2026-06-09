@@ -421,6 +421,21 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   .sheet{max-width:460px}
 }
 
+/* AUTH GATE */
+#auth-gate{position:fixed;inset:0;background:var(--p);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+#auth-gate .ag-box{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center}
+#auth-gate .ag-avatar{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+#auth-gate .ag-title{font-family:var(--fs);font-size:22px;color:#fff;text-align:center;margin-bottom:6px;line-height:1.3}
+#auth-gate .ag-sub{font-size:11px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:28px;letter-spacing:.06em;text-transform:uppercase}
+#auth-gate input{width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.13);color:#fff;font-size:15px;font-family:var(--sans);outline:none;margin-bottom:10px;box-sizing:border-box}
+#auth-gate input::placeholder{color:rgba(255,255,255,.4)}
+#auth-gate input:focus{border-color:rgba(255,255,255,.5)}
+#auth-gate .ag-btn{width:100%;padding:14px;border-radius:12px;border:none;background:#fff;color:var(--p);font-size:15px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-top:4px;touch-action:manipulation}
+#auth-gate .ag-btn:disabled{opacity:.6;cursor:not-allowed}
+#auth-gate .ag-err{font-size:12px;color:rgba(255,120,120,.95);min-height:18px;text-align:center;margin-bottom:6px}
+#auth-gate .ag-spin{font-size:13px;color:rgba(255,255,255,.65);text-align:center;margin-top:10px;display:none}
+/* MEMBER VIEW */
+#member-view{display:none;position:fixed;inset:0;background:var(--bg);z-index:8000;overflow-y:auto;padding-bottom:24px}
 .evdet-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
 .evdet-box{background:var(--p);color:#fff;border-radius:var(--rsm);width:46px;height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .evdet-box .dd{font-family:var(--fs);font-size:20px;font-weight:600;line-height:1}
@@ -434,6 +449,38 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </style>
 </head>
 <body>
+<!-- AUTH GATE -->
+<div id="auth-gate">
+  <div class="ag-box">
+    <div class="ag-avatar">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </div>
+    <div class="ag-title" id="ag-title">Asé Ogun dá lè ko</div>
+    <div class="ag-sub">Painel do Barracão</div>
+    <input id="ag-email" type="email" placeholder="Seu e-mail" autocomplete="email"
+      onkeydown="if(event.key==='Enter')document.getElementById('ag-pass').focus()"/>
+    <input id="ag-pass" type="password" placeholder="Senha" autocomplete="current-password"
+      onkeydown="if(event.key==='Enter')doAuthLogin()"/>
+    <div class="ag-err" id="ag-err"></div>
+    <button class="ag-btn" id="ag-btn" onclick="doAuthLogin()">Entrar</button>
+    <div class="ag-spin" id="ag-spin">Verificando...</div>
+  </div>
+</div>
+
+<!-- MEMBER VIEW -->
+<div id="member-view">
+  <div style="background:var(--p);padding:calc(14px + env(safe-area-inset-top,0px)) 16px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10">
+    <div>
+      <div style="font-family:var(--fs);font-size:17px;font-weight:600;color:#fff" id="mv-barname">Asé Ogun dá lè ko</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.6);letter-spacing:.05em;text-transform:uppercase">Minha ficha</div>
+    </div>
+    <button onclick="doSignOut()" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:7px 13px;color:rgba(255,255,255,.85);font-size:12px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">Sair</button>
+  </div>
+  <div style="padding:16px" id="mv-content">
+    <div style="font-size:14px;color:var(--tmu);text-align:center;padding:40px 0">Carregando sua ficha...</div>
+  </div>
+</div>
+
 <!-- LOADING SCREEN -->
 <div id="fb-loading" style="position:fixed;inset:0;background:var(--bg,#fdf8f3);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px">
   <div style="font-size:48px">🔥</div>
@@ -465,6 +512,8 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   <nav class="nav-desk" id="nav-desk">
     <button class="nb-desk on" data-page="home" onclick="goToDesk('home',this)">
       <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início</button>
+    <button class="nb-desk" id="desk-nav-ficha" data-page="ficha" style="display:none" onclick="goToDesk('ficha',this)">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Minha Ficha</button>
     <button class="nb-desk" id="desk-nav-members" data-page="members" style="display:none" onclick="goToDesk('members',this)">
       <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Filhos de Santo</button>
     <button class="nb-desk" data-page="calendar" onclick="goToDesk('calendar',this)">
@@ -487,6 +536,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 <!-- NAV -->
 <nav class="nav" id="mainnav">
   <button class="nb on" onclick="goTo('home',this)"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início</button>
+  <button class="nb" id="nav-ficha-mob" style="display:none" onclick="goTo('ficha',this)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Minha Ficha</button>
   <button class="nb" id="nav-members" style="display:none" onclick="goTo('members',this)"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Filhos</button>
   <button class="nb" onclick="goTo('calendar',this)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
   <button class="nb" id="nav-fin-mob" style="display:none" onclick="goTo('finance',this)"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Finanças</button>
@@ -546,6 +596,14 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     </div>
     <div class="slbl">Próximos eventos</div>
     <div class="card" id="home-events"></div>
+  </div>
+</div>
+
+<!-- MEMBERS -->
+<!-- MINHA FICHA (membro logado) -->
+<div class="pg" id="pg-ficha">
+  <div class="pi" id="pg-ficha-content">
+    <div style="font-size:14px;color:var(--tmu);text-align:center;padding:40px 0">Carregando...</div>
   </div>
 </div>
 
@@ -860,7 +918,14 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   <div class="fld"><label>Telefone</label><input id="nm-tel" type="tel" placeholder="(21) 9xxxx-xxxx"/></div>
   <div class="fld"><label>E-mail</label><input id="nm-email" type="email"/></div>
   <div class="fld"><label>Observações</label><textarea id="nm-obs" placeholder="Notas, histórico..."></textarea></div>
-  <div class="sbtns"><button class="bcancel" onclick="closeOv('ov-newmem')">Cancelar</button><button class="bsave" onclick="addMember()">Salvar</button></div>
+  <div style="background:var(--pp);border:1px solid var(--pmut);border-radius:var(--rmd);padding:13px 14px;margin:10px 0 4px">
+    <div style="font-size:12px;font-weight:600;color:var(--pm);margin-bottom:3px">🔐 Acesso ao app</div>
+    <div style="font-size:11px;color:var(--tmu);margin-bottom:11px;line-height:1.5">Crie o login para este membro ver a própria ficha.</div>
+    <div class="fld" style="margin-bottom:9px"><label>E-mail de acesso *</label><input id="nm-login-email" type="email" placeholder="email@exemplo.com"/></div>
+    <div class="fld" style="margin-bottom:0"><label>Senha provisória *</label><input id="nm-login-pwd" type="text" placeholder="Mínimo 6 caracteres"/></div>
+  </div>
+  <div id="nm-login-status" style="font-size:12px;color:var(--tmu);min-height:16px;margin-bottom:4px;text-align:center"></div>
+  <div class="sbtns"><button class="bcancel" onclick="closeOv('ov-newmem')">Cancelar</button><button class="bsave" id="nm-save-btn" onclick="addMember()">Salvar</button></div>
 </div>
 </div>
 
@@ -1166,31 +1231,7 @@ function doAdminMenuLogin(){
   } else { document.getElementById('amenu-err').textContent='Senha incorreta.'; }
 }
 function doLogin(){ doAdminMenuLogin(); }
-function logout(){
-  isAdmin=false;
-  const amob=document.getElementById('abtn-mob'); if(amob){amob.style.color='';amob.style.fontWeight='';}
-  const ffb=document.getElementById('fin-fee-btn'); if(ffb)ffb.style.display='none';
-  const fpc=document.getElementById('fin-pix-cfg'); if(fpc)fpc.style.display='none';
-  const nm=document.getElementById('nav-members'); if(nm)nm.style.display='none';
-  const dnm=document.getElementById('desk-nav-members'); if(dnm)dnm.style.display='none';
-  const nfm2=document.getElementById('nav-fin-mob'); if(nfm2)nfm2.style.display='none';
-  const dff2=document.getElementById('desk-nav-fin'); if(dff2)dff2.style.display='none';
-  const nvitm2=document.getElementById('nav-vitrine-mob'); if(nvitm2)nvitm2.style.display='none';
-  const nvitd2=document.getElementById('nav-vitrine-desk'); if(nvitd2)nvitd2.style.display='none';
-  const ncm2=document.getElementById('nav-config-mob'); if(ncm2)ncm2.style.display='none';
-  const ncd2=document.getElementById('nav-config-desk'); if(ncd2)ncd2.style.display='none';
-  const sbm2=document.getElementById('save-btn-top'); if(sbm2)sbm2.style.display='none';
-  const sbd2=document.getElementById('cfg-btn-top'); if(sbd2)sbd2.style.display='none';
-  document.getElementById('mem-fab').style.display='none';
-  document.getElementById('cal-fab').style.display='none';
-  const cur=document.querySelector('.pg.on');
-  if(cur&&(cur.id==='pg-finance'||cur.id==='pg-members'))
-    goTo('home',document.querySelector('.nb'));
-  document.getElementById('tb-user-lbl').textContent='Admin';
-  document.getElementById('tb-user-btn').style.background='rgba(255,255,255,.15)';
-  toast('Saiu do modo admin.');
-  renderMembers();
-}
+function logout(){ doSignOut(); toast('Sessão encerrada.'); }
 function changePwd(){
   const cur=document.getElementById('pwd-cur').value;
   const nw=document.getElementById('pwd-new').value;
@@ -1233,7 +1274,65 @@ function renderPage(id){
   else if(id==='finance')renderFinance();
   else if(id==='vitrine'){renderSlidesAdm();}
   else if(id==='config'){renderAdminPanel();}
+  else if(id==='ficha'){renderFichaMembro();}
   else if(id==='admin'){}
+}
+
+function renderFichaMembro(){
+  const content=document.getElementById('pg-ficha-content');
+  if(!content) return;
+  if(!currentUser){ content.innerHTML='<div style="font-size:13px;color:var(--tmu);text-align:center;padding:32px 0">Faça login para ver sua ficha.</div>'; return; }
+
+  const uid=currentUser.uid;
+  const email=currentUser.email||'';
+  let mem=S.members.find(m=>m.uid===uid)
+        ||S.members.find(m=>m.email&&m.email.toLowerCase()===email.toLowerCase());
+
+  if(!mem){
+    content.innerHTML=`
+      <div style="text-align:center;padding:48px 0">
+        <div style="font-size:52px;margin-bottom:14px">🌿</div>
+        <div style="font-family:var(--fs);font-size:19px;color:var(--tm);margin-bottom:8px">Bem-vindo(a)!</div>
+        <div style="font-size:13px;color:var(--tmu);line-height:1.7">Sua ficha ainda não foi cadastrada.<br>Entre em contato com a administração.</div>
+      </div>`;
+    return;
+  }
+
+  const mo=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T00:00:00');return`${String(dt.getDate()).padStart(2,'0')} de ${mo[dt.getMonth()]} de ${dt.getFullYear()}`;}
+  function row(lbl,val){return val?`<div class="det-row"><div class="det-lbl">${lbl}</div><div class="det-val">${val}</div></div>`:'';}
+
+  const pays=S.payments.filter(p=>p.memberId===mem.id)
+    .sort((a,b)=>b.month.localeCompare(a.month)).slice(0,6);
+  const payHtml=pays.length?pays.map(p=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bo)">
+      <div style="font-size:13px;color:var(--tmu)">${p.month}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:13px;font-weight:500">R$ ${p.value}</span>
+        <span class="badge ${p.status}">${p.status==='ok'?'Em dia':p.status==='pend'?'Pendente':'Atrasado'}</span>
+      </div>
+    </div>`).join('')
+    :'<div style="font-size:13px;color:var(--tmu);padding:8px 0">Nenhum lançamento registrado.</div>';
+
+  const av=mem.photo
+    ?`<img src="${mem.photo}" style="width:82px;height:82px;border-radius:50%;object-fit:cover;border:2px solid var(--pmut);margin-bottom:10px"/>`
+    :`<div style="width:82px;height:82px;border-radius:50%;background:var(--pp);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:500;color:var(--pm);border:2px solid var(--pmut);margin-bottom:10px">${mem.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()}</div>`;
+
+  content.innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;padding:12px 0 16px;text-align:center">
+      ${av}
+      <div style="font-family:var(--fs);font-size:20px;font-weight:600;color:var(--tm)">${mem.name}</div>
+      <div style="font-size:13px;color:var(--tmu);margin-top:3px">${mem.role||''}${mem.orixa?' · '+mem.orixa:''}</div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      ${row('Orunko',mem.orunko)}${row('Odú',mem.odu)}
+      ${row('Iniciação',fmtDate(mem.initDate))}${row('Nascimento',fmtDate(mem.birthDate))}
+      ${row('Cargo',mem.cargo)}${row('Juntó',mem.junto)}
+      ${row('Exu',mem.exu)}${row('Assentamentos',mem.assentamentos)}${row('Telefone',mem.phone)}
+    </div>
+    <div class="slbl">Mensalidades</div>
+    <div class="card">${payHtml}</div>
+    <button onclick="doSignOut()" class="bdanger" style="margin-top:16px">🚪 Sair</button>`;
 }
 
 // ══ VITRINE ════════════════════════════════════
@@ -1389,10 +1488,55 @@ function previewDriveUrl(url,prevId){
 function addMember(){
   const name=document.getElementById('nm-nome').value.trim();
   if(!name){toast('Informe o nome');return;}
-  S.members.push({id:Date.now(),name,photo:document.getElementById('nm-photo-url').value.trim()||'',birthDate:document.getElementById('nm-nasc').value,role:document.getElementById('nm-role').value,cargo:document.getElementById('nm-cargo').value,orixa:document.getElementById('nm-orixa').value,orunko:document.getElementById('nm-orunko').value,odu:document.getElementById('nm-odu').value,initDate:document.getElementById('nm-init').value,assentamentos:document.getElementById('nm-assent').value,junto:document.getElementById('nm-junto').value,exu:document.getElementById('nm-exu').value,phone:document.getElementById('nm-tel').value,email:document.getElementById('nm-email').value,obs:document.getElementById('nm-obs').value});
-  saveS();fbAutoSave('members',S.members[S.members.length-1]);closeOv('ov-newmem');renderMembers();renderHome();toast('Membro adicionado! 🌿');
-  document.getElementById('nm-photo-url').value='';document.getElementById('nm-photo-status').textContent='Toque na foto para escolher da galeria';['nm-nome','nm-nasc','nm-tel','nm-email','nm-init','nm-obs','nm-orunko','nm-odu','nm-assent','nm-junto','nm-exu'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('nm-photo-prev').innerHTML='📷';
+  const loginEmail=document.getElementById('nm-login-email').value.trim();
+  const loginPwd=document.getElementById('nm-login-pwd').value.trim();
+  if(!loginEmail||!loginPwd){toast('Preencha o e-mail e senha de acesso');return;}
+  if(loginPwd.length<6){toast('A senha deve ter pelo menos 6 caracteres');return;}
+
+  const saveBtn=document.getElementById('nm-save-btn');
+  const statusEl=document.getElementById('nm-login-status');
+  saveBtn.disabled=true; saveBtn.textContent='Salvando...';
+  statusEl.textContent='⏳ Criando acesso...';
+
+  const memberData={
+    id:Date.now(),name,
+    photo:document.getElementById('nm-photo-url').value.trim()||'',
+    birthDate:document.getElementById('nm-nasc').value,
+    role:document.getElementById('nm-role').value,
+    cargo:document.getElementById('nm-cargo').value,
+    orixa:document.getElementById('nm-orixa').value,
+    orunko:document.getElementById('nm-orunko').value,
+    odu:document.getElementById('nm-odu').value,
+    initDate:document.getElementById('nm-init').value,
+    assentamentos:document.getElementById('nm-assent').value,
+    junto:document.getElementById('nm-junto').value,
+    exu:document.getElementById('nm-exu').value,
+    phone:document.getElementById('nm-tel').value,
+    email:loginEmail,
+    obs:document.getElementById('nm-obs').value
+  };
+
+  createMemberFirebaseUser(loginEmail,loginPwd,memberData)
+    .then(uid=>{
+      memberData.uid=uid;
+      S.members.push(memberData);
+      saveS();
+      fbAutoSave('members',memberData);
+      closeOv('ov-newmem');
+      renderMembers(); renderHome();
+      toast('Membro cadastrado com acesso ao app! 🌿');
+      saveBtn.disabled=false; saveBtn.textContent='Salvar';
+      statusEl.textContent='';
+      document.getElementById('nm-photo-url').value='';
+      document.getElementById('nm-photo-status').textContent='Toque na foto para escolher da galeria';
+      ['nm-nome','nm-nasc','nm-tel','nm-email','nm-init','nm-obs','nm-orunko','nm-odu','nm-assent','nm-junto','nm-exu','nm-login-email','nm-login-pwd'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      document.getElementById('nm-photo-prev').innerHTML='📷';
+    })
+    .catch(e=>{
+      saveBtn.disabled=false; saveBtn.textContent='Salvar';
+      statusEl.textContent='❌ '+e.message;
+      toast('Erro: '+e.message);
+    });
 }
 
 function openMemDet(idx){
@@ -2525,13 +2669,222 @@ function fbHideLoading(){
   if(el){el.style.opacity='0';el.style.transition='opacity 0.4s';setTimeout(()=>el.style.display='none',400);}
 }
 
+// ══ FIREBASE AUTH GATE ══════════════════════════════════════
+
+// ▼▼▼ COLOQUE AQUI O E-MAIL DA CONTA ADMIN ▼▼▼
+const ADMIN_EMAILS = ['leandro@ase.com','eneida@ase.com']; // adicione ou altere conforme necessário
+
+let currentUser = null;
+let currentUserRole = null;
+
+function isAdminEmail(email){
+  return ADMIN_EMAILS.map(e=>e.toLowerCase()).includes((email||'').toLowerCase());
+}
+
+function initAuthGate(){
+  if(!fbAuth) return;
+  const t=document.getElementById('ag-title');
+  if(t) t.textContent = S.name||'Asé Ogun dá lè ko';
+
+  fbAuth.onAuthStateChanged(async user=>{
+    if(user){
+      currentUser = user;
+      await resolveUserRole(user);
+    } else {
+      currentUser=null; currentUserRole=null; isAdmin=false;
+      hideMemberView();
+      updateAdminUI();
+      showAuthGate();
+    }
+  });
+}
+
+async function resolveUserRole(user){
+  // ── Admin: e-mail na lista → app completo ──
+  if(isAdminEmail(user.email)){
+    currentUserRole='admin';
+    isAdmin=true;
+    hideAuthGate();
+    hideMemberView();
+    updateAdminUI();
+    fbHideLoading();
+    startFbListeners();
+    renderPage('home');
+    return;
+  }
+
+  // ── Membro: abre o app normal, só mostra abas públicas + Minha Ficha ──
+  currentUserRole='member';
+  isAdmin=false;
+  hideAuthGate();
+  hideMemberView();
+  updateAdminUI(); // esconde abas admin, mostra aba Minha Ficha
+  fbHideLoading();
+  startFbListeners();
+  renderPage('home');
+  // pré-carrega a ficha na pg-ficha
+  renderFichaMembro();
+}
+
+function showAuthGate(){
+  const g=document.getElementById('auth-gate');
+  if(g) g.style.display='flex';
+  const t=document.getElementById('ag-title');
+  if(t) t.textContent=S.name||'Asé Ogun dá lè ko';
+  document.getElementById('ag-email').value='';
+  document.getElementById('ag-pass').value='';
+  document.getElementById('ag-err').textContent='';
+  const btn=document.getElementById('ag-btn');
+  if(btn){btn.disabled=false;btn.textContent='Entrar';}
+  document.getElementById('ag-spin').style.display='none';
+}
+function hideAuthGate(){
+  const g=document.getElementById('auth-gate');
+  if(g) g.style.display='none';
+}
+
+async function doAuthLogin(){
+  const email=document.getElementById('ag-email').value.trim();
+  const pass=document.getElementById('ag-pass').value;
+  const errEl=document.getElementById('ag-err');
+  const btn=document.getElementById('ag-btn');
+  const spin=document.getElementById('ag-spin');
+  errEl.textContent='';
+  if(!email||!pass){errEl.textContent='Preencha e-mail e senha.';return;}
+  btn.disabled=true; btn.textContent='Entrando...'; spin.style.display='block';
+  try{
+    await fbAuth.signInWithEmailAndPassword(email,pass);
+    // onAuthStateChanged cuida do resto
+  }catch(e){
+    btn.disabled=false; btn.textContent='Entrar'; spin.style.display='none';
+    const msgs={
+      'auth/user-not-found':'Usuário não encontrado.',
+      'auth/wrong-password':'Senha incorreta.',
+      'auth/invalid-email':'E-mail inválido.',
+      'auth/too-many-requests':'Muitas tentativas. Aguarde.',
+      'auth/invalid-credential':'E-mail ou senha incorretos.',
+    };
+    errEl.textContent=msgs[e.code]||'Erro: '+e.message;
+  }
+}
+
+async function doSignOut(){
+  if(fbAuth) await fbAuth.signOut();
+  isAdmin=false; currentUser=null; currentUserRole=null;
+  hideMemberView();
+  updateAdminUI();
+  // onAuthStateChanged mostra o auth-gate automaticamente
+}
+
+function updateAdminUI(){
+  const lbl=document.getElementById('tb-user-lbl');
+  const btn=document.getElementById('tb-user-btn');
+  if(isAdmin){
+    if(lbl)lbl.textContent='Admin ✓';
+    if(btn)btn.style.background='rgba(255,255,255,.25)';
+  } else {
+    if(lbl)lbl.textContent=currentUser?currentUser.email.split('@')[0]:'Entrar';
+    if(btn)btn.style.background='rgba(255,255,255,.14)';
+  }
+  // Abas exclusivas do admin
+  ['nav-members','nav-fin-mob','nav-vitrine-mob','nav-config-mob'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display=isAdmin?'':'none';
+  });
+  ['desk-nav-members','desk-nav-fin','nav-vitrine-desk','nav-config-desk'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display=isAdmin?'':'none';
+  });
+  const fab=document.getElementById('mem-fab');if(fab)fab.style.display=isAdmin?'':'none';
+  const cfab=document.getElementById('cal-fab');if(cfab)cfab.style.display=isAdmin?'':'none';
+  const fpix=document.getElementById('fin-pix-btn');if(fpix)fpix.style.display=isAdmin?'flex':'none';
+  const ffee=document.getElementById('fin-fee-btn');if(ffee)ffee.style.display=isAdmin?'flex':'none';
+  // Aba Minha Ficha — só aparece para membros logados (não-admin)
+  const isMember = currentUser && !isAdmin;
+  const nfm=document.getElementById('nav-ficha-mob');if(nfm)nfm.style.display=isMember?'':'none';
+  const nfd=document.getElementById('desk-nav-ficha');if(nfd)nfd.style.display=isMember?'':'none';
+}
+
+// ── Member View ──────────────────────────────────────────────
+function showMemberView(userData){
+  const mv=document.getElementById('member-view');
+  if(!mv) return;
+  mv.style.display='block';
+  const bn=document.getElementById('mv-barname');
+  if(bn) bn.textContent=S.name||'Asé Ogun dá lè ko';
+
+  const uid=currentUser?currentUser.uid:null;
+  const email=(userData.email)||(currentUser?currentUser.email:'');
+  let mem=S.members.find(m=>m.uid===uid)
+        ||S.members.find(m=>m.email&&m.email.toLowerCase()===email.toLowerCase());
+
+  const content=document.getElementById('mv-content');
+  if(!mem){
+    content.innerHTML=`
+      <div style="text-align:center;padding:48px 0">
+        <div style="font-size:52px;margin-bottom:14px">🌿</div>
+        <div style="font-family:var(--fs);font-size:19px;color:var(--tm);margin-bottom:8px">Bem-vindo(a)!</div>
+        <div style="font-size:13px;color:var(--tmu);line-height:1.7">Sua ficha ainda não foi cadastrada.<br>Entre em contato com a administração.</div>
+      </div>`;
+    return;
+  }
+
+  const mo=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T00:00:00');return`${String(dt.getDate()).padStart(2,'0')} de ${mo[dt.getMonth()]} de ${dt.getFullYear()}`;}
+  function row(lbl,val){return val?`<div class="det-row"><div class="det-lbl">${lbl}</div><div class="det-val">${val}</div></div>`:'';}
+
+  const pays=S.payments.filter(p=>p.memberId===mem.id)
+    .sort((a,b)=>b.month.localeCompare(a.month)).slice(0,6);
+  const payHtml=pays.length?pays.map(p=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bo)">
+      <div style="font-size:13px;color:var(--tmu)">${p.month}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:13px;font-weight:500">R$ ${p.value}</span>
+        <span class="badge ${p.status}">${p.status==='ok'?'Em dia':p.status==='pend'?'Pendente':'Atrasado'}</span>
+      </div>
+    </div>`).join('')
+    :'<div style="font-size:13px;color:var(--tmu);padding:8px 0">Nenhum lançamento registrado.</div>';
+
+  const av=mem.photo
+    ?`<img src="${mem.photo}" style="width:82px;height:82px;border-radius:50%;object-fit:cover;border:2px solid var(--pmut);margin-bottom:10px"/>`
+    :`<div style="width:82px;height:82px;border-radius:50%;background:var(--pp);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:500;color:var(--pm);border:2px solid var(--pmut);margin-bottom:10px">${mem.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()}</div>`;
+
+  content.innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;padding:20px 0 16px;text-align:center">
+      ${av}
+      <div style="font-family:var(--fs);font-size:20px;font-weight:600;color:var(--tm)">${mem.name}</div>
+      <div style="font-size:13px;color:var(--tmu);margin-top:3px">${mem.role||''}${mem.orixa?' · '+mem.orixa:''}</div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      ${row('Orunko',mem.orunko)}${row('Odú',mem.odu)}${row('Iniciação',fmtDate(mem.initDate))}
+      ${row('Nascimento',fmtDate(mem.birthDate))}${row('Cargo',mem.cargo)}${row('Juntó',mem.junto)}
+      ${row('Exu',mem.exu)}${row('Assentamentos',mem.assentamentos)}${row('Telefone',mem.phone)}
+    </div>
+    <div class="slbl">Mensalidades</div>
+    <div class="card">${payHtml}</div>`;
+}
+function hideMemberView(){
+  const mv=document.getElementById('member-view');if(mv)mv.style.display='none';
+}
+
+// ── Cria usuário Firebase sem deslogar o admin ───────────────
+async function createMemberFirebaseUser(email,password,memberData){
+  const apiKey='AIzaSyC5pyRzexFq60aFiS56Sih2xhmCb8PTVeQ';
+  const res=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email,password,returnSecureToken:true})
+  });
+  const data=await res.json();
+  if(data.error) throw new Error(data.error.message==='EMAIL_EXISTS'?'Este e-mail já tem cadastro.':data.error.message);
+  const uid=data.localId;
+  await fbDb.collection('users').doc(uid).set({uid,email,role:'member',name:memberData.name,memberId:memberData.id});
+  return uid;
+}
+
+// ══ INIT ═══════════════════════════════════════════════════
 async function appInit(){
-  // 1. Load local settings (adminPwd, firebase config, cloudinary etc)
   loadS();
   applyColor(S.color);
-  renderHome(); // show skeleton while loading
 
-  // 2. Firebase config — embutido no código, funciona em qualquer dispositivo
+  fbLoadingMsg('Conectando ao Firebase...', 20);
   const cfg = getFbCfg() || {
     apiKey:         'AIzaSyC5pyRzexFq60aFiS56Sih2xhmCb8PTVeQ',
     authDomain:     'ase-ogun.firebaseapp.com',
@@ -2540,15 +2893,9 @@ async function appInit(){
     appId:          '1:993409744433:web:a37ccc5baf5935f85c5f10'
   };
 
-  // 3. Init Firebase
-  fbLoadingMsg('Conectando ao Firebase...', 20);
   const ok=initFirebase(cfg);
-  if(!ok){
-    fbLoadingError('Erro ao conectar ao Firebase.\nVerifique sua conexão com a internet.');
-    return;
-  }
+  if(!ok){ fbLoadingError('Erro ao conectar ao Firebase.\nVerifique sua conexão.'); return; }
 
-  // 4. Load all data from Firestore — abre o app mesmo se banco vazio
   fbLoadingMsg('Carregando dados...', 50);
   const keep={adminPwd:S.adminPwd,gasUrl:S.gasUrl,driveUrl:S.driveUrl,sheetUrl:S.sheetUrl,cloudName:S.cloudName||'',cloudPreset:S.cloudPreset||''};
   try{
@@ -2562,9 +2909,9 @@ async function appInit(){
     ]);
     if(cfgSnap.exists){
       const c=cfgSnap.data();
-      if(c.name)S.name=c.name; if(c.color)S.color=c.color; if(c.fee)S.fee=c.fee;
-      if(c.dueDay)S.dueDay=c.dueDay; if(c.address)S.address=c.address;
-      if(c.pixKey!==undefined)S.pixKey=c.pixKey; if(c.pixName!==undefined)S.pixName=c.pixName;
+      if(c.name)S.name=c.name;if(c.color)S.color=c.color;if(c.fee)S.fee=c.fee;
+      if(c.dueDay)S.dueDay=c.dueDay;if(c.address)S.address=c.address;
+      if(c.pixKey!==undefined)S.pixKey=c.pixKey;if(c.pixName!==undefined)S.pixName=c.pixName;
       if(c.roles&&c.roles.length)S.roles=c.roles;
       if(c.orixas&&c.orixas.length)S.orixas=c.orixas;
       if(c.cargos&&c.cargos.length)S.cargos=c.cargos;
@@ -2574,22 +2921,13 @@ async function appInit(){
     if(!paySnap.empty)S.payments=paySnap.docs.map(d=>d.data());
     if(!expSnap.empty)S.expenses=expSnap.docs.map(d=>d.data());
     if(!slSnap.empty)S.slides=slSnap.docs.map(d=>d.data());
-  }catch(e){
-    console.error('Firebase load error:', e.code, e.message);
-    // Se for erro de permissão avisa, mas abre o app do mesmo jeito
-    if(e.code==='permission-denied'){
-      toast('⚠️ Firestore: acesso negado. Verifique as regras.');
-    }
-    // Qualquer outro erro: abre normalmente com dados locais
-  }
-  // Sempre abre o app — banco vazio ou com dados
+  }catch(e){ console.error('Firebase load error:',e.code,e.message); }
   Object.assign(S,keep);
-  saveS();
-  applyColor(S.color);
-  fbLoadingMsg('Pronto!', 100);
-  const activePg = document.querySelector('.pg.on');
-  renderPage(activePg ? activePg.id.replace('pg-','') : 'home');
-  setTimeout(fbHideLoading, 300);
+  saveS(); applyColor(S.color);
+  fbLoadingMsg('Pronto!', 90);
+
+  // Auth gate — aguarda onAuthStateChanged para decidir o que mostrar
+  initAuthGate();
 }
 
 // ── Login screen (fullscreen) ──────────────────────────
