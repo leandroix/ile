@@ -472,9 +472,8 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     <button class="nb-desk" data-page="finance" id="desk-nav-fin" style="display:none" onclick="goToDesk('finance',this)">
       <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Finanças</button>
 
-    <button class="nb-desk" id="nav-vitrine-desk" style="display:none" onclick="openOv('ov-admin-menu')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Vitrine</button>
-    <button class="nb-desk" id="save-btn-desk" style="display:none;color:var(--p)" onclick="fbSyncAll()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Salvar</button>
+    <button class="nb-desk" id="nav-vitrine-desk" data-page="vitrine" style="display:none" onclick="goToDesk('vitrine',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Vitrine</button>
+    <button class="nb-desk" id="nav-config-desk" data-page="config" style="display:none" onclick="goToDesk('config',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Config.</button>
 
   </nav>
 
@@ -492,92 +491,12 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   <button class="nb" onclick="goTo('calendar',this)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda</button>
   <button class="nb" id="nav-fin-mob" style="display:none" onclick="goTo('finance',this)"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Finanças</button>
 
-  <button class="nb" id="nav-vitrine-mob" style="display:none" onclick="openOv('ov-admin-menu')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Vitrine</button>
-  <button class="nb" id="save-btn-mob" style="display:none;color:var(--p)" onclick="fbSyncAll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Salvar</button>
+  <button class="nb" id="nav-vitrine-mob" style="display:none" onclick="goTo('vitrine',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Vitrine</button>
+  <button class="nb" id="nav-config-mob" style="display:none" onclick="goTo('config',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Config.</button>
 
 </nav>
 
 <!-- ADMIN MENU OVERLAY -->
-<div class="ov" id="ov-admin-menu" onclick="if(event.target===this)closeOv('ov-admin-menu')">
-<div class="sheet" style="max-height:92vh;overflow-y:auto">
-  <div class="sh"></div>
-
-  <!-- LOGIN STATE -->
-  <div id="admin-menu-loggedout">
-    <div class="stit">Área Administrativa</div>
-    <div style="font-size:13px;color:var(--tmu);margin-bottom:14px">Entre com a senha para acessar finanças e configurações.</div>
-    <div class="fld"><label>Senha</label><input type="password" id="amenu-pwd" placeholder="Senha admin" onkeydown="if(event.key==='Enter')doAdminMenuLogin()"/></div>
-    <div id="amenu-err" style="font-size:12px;color:var(--red);margin-bottom:8px;min-height:16px"></div>
-    <button class="bsave" style="width:100%;padding:12px;border-radius:var(--rsm);border:none;font-size:14px;font-family:var(--sans);cursor:pointer;touch-action:manipulation" onclick="doAdminMenuLogin()">Entrar</button>
-    <button style="width:100%;margin-top:8px;padding:11px;border-radius:var(--rsm);border:none;font-size:14px;font-family:var(--sans);cursor:pointer;background:var(--sf);color:var(--tmu);touch-action:manipulation" onclick="closeOv('ov-admin-menu')">Cancelar</button>
-  </div>
-
-  <!-- LOGGED IN STATE: tudo inline, rola para baixo -->
-  <div id="admin-menu-loggedin" style="display:none">
-    <div class="stit">Administração</div>
-
-    <!-- FIREBASE -->
-    <div class="slbl">🔥 Firebase — Tempo real</div>
-    <div class="card" style="margin-bottom:14px"><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-      <div class="crow" onclick="openOv('ov-addr')"><div><div class="cl">Endereço</div><div class="cs" id="adm-cfg-addr">Não informado</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-      <div class="crow" onclick="openOv('ov-fee')"><div><div class="cl">Valor da mensalidade</div><div class="cs" id="adm-cfg-fee">—</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-    </div>
-
-    <!-- COR -->
-    <div class="slbl">Cor do app</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="cs" style="margin-bottom:8px">Tema do barracão</div>
-      <div class="csw" id="csw-adm"></div>
-      <div style="margin-top:11px;display:flex;align-items:center;gap:9px"><span style="font-size:13px;color:var(--tmu)">Personalizada:</span><input type="color" id="custom-color-adm" value="#5c1a1a" style="width:34px;height:34px;border:none;border-radius:50%;cursor:pointer;background:none" onchange="applyColor(this.value)"/></div>
-    </div>
-
-    <!-- FUNÇÕES -->
-    <div class="slbl">Funções do axé</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="rwrap" id="roles-wrap-adm2"></div>
-      <button class="boutl" onclick="openOv('ov-addrole')">+ Adicionar função</button>
-    </div>
-
-    <!-- CARGOS -->
-    <div class="slbl">Cargos</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="rwrap" id="cargos-wrap-adm"></div>
-      <button class="boutl" onclick="openOv('ov-addcargo')">+ Adicionar cargo</button>
-    </div>
-
-    <!-- ORIXÁS -->
-    <div class="slbl">Orixás</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="cs" style="margin-bottom:8px">Gerencie a lista de orixás disponíveis</div>
-      <div class="rwrap" id="orixas-wrap-adm2"></div>
-      <button class="boutl" onclick="document.getElementById('orixa-edit-idx').value=-1;document.getElementById('orixa-sheet-title').textContent='Adicionar orixá';document.getElementById('orixa-name-i').value='';openOv('ov-addorixa')">+ Adicionar orixá</button>
-    </div>
-
-    <!-- VITRINE -->
-    <div class="slbl">Vitrine</div>
-    <div class="card" style="margin-bottom:14px">
-      <div id="slides-adm-inline"></div>
-      <button class="boutl" onclick="openOv('ov-newslide')">+ Novo card na vitrine</button>
-    </div>
-
-    <!-- EXPORTAR -->
-    <div class="slbl">Exportar membros</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="crow" onclick="exportFichasPDF()"><div><div class="cl">📄 Fichas de cadastro (PDF)</div><div class="cs">Uma ficha por membro</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-      <div class="crow" onclick="exportCSV()"><div><div class="cl">📊 Exportar lista (Excel/CSV)</div><div class="cs">Tabela com todos os membros</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-
-    <!-- SENHA -->
-    <div class="slbl">Segurança</div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="crow" onclick="['pwd-cur','pwd-new','pwd-cf'].forEach(id=>document.getElementById(id).value='');openOv('ov-pwd')"><div><div class="cl">🔒 Alterar senha</div><div class="cs">Protege o acesso admin</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
-    </div>
-
-    <button class="bdanger" style="margin-bottom:8px" onclick="closeOv('ov-admin-menu');logout()">🚪 Sair do modo admin</button>
-    <button style="width:100%;padding:11px;border-radius:var(--rsm);border:none;font-size:14px;font-family:var(--sans);cursor:pointer;background:var(--sf);color:var(--tmu);touch-action:manipulation" onclick="closeOv('ov-admin-menu')">Fechar</button>
-  </div>
-
-</div>
-</div>
 
 <div class="pages">
 
@@ -715,6 +634,111 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     </div>
   </div>
 </div>
+<!-- ADMIN PAGE (full screen like finance) -->
+<div class="pg" id="pg-admin">
+  <div class="pi">
+
+    <!-- LOGIN STATE -->
+    <div id="admin-menu-loggedout">
+      <div class="ptit">Administração</div>
+      <div class="psub" style="margin-bottom:16px">Entre com a senha para acessar as configurações.</div>
+      <div class="fld"><label>Senha</label><input type="password" id="amenu-pwd" placeholder="Senha admin" onkeydown="if(event.key==='Enter')doAdminMenuLogin()"/></div>
+      <div id="amenu-err" style="font-size:12px;color:var(--red);margin-bottom:8px;min-height:16px"></div>
+      <button class="bsave" style="width:100%;padding:12px;border-radius:var(--rsm);border:none;font-size:14px;font-family:var(--sans);cursor:pointer;touch-action:manipulation" onclick="doAdminMenuLogin()">Entrar</button>
+    </div>
+
+    <!-- LOGGED IN STATE -->
+    <div id="admin-menu-loggedin" style="display:none">
+      <div class="ptit">Administração</div>
+      <div class="psub" style="margin-bottom:20px">Sessão ativa</div>
+      <button class="bdanger" style="width:100%;margin-bottom:8px" onclick="logout()">🚪 Sair do modo admin</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONFIG PAGE -->
+<div class="pg" id="pg-config">
+  <div class="pi">
+    <div class="ptit">Configurações</div>
+
+    <!-- IDENTIDADE -->
+    <div class="slbl">Identidade</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="crow" onclick="openOv('ov-name')"><div><div class="cl">Nome do barracão</div><div class="cs" id="adm-cfg-name">—</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      <div class="crow" onclick="openOv('ov-addr')"><div><div class="cl">Endereço</div><div class="cs" id="adm-cfg-addr">Não informado</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      <div class="crow" onclick="openOv('ov-fee')"><div><div class="cl">Valor da mensalidade</div><div class="cs" id="adm-cfg-fee">—</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </div>
+
+    <!-- COR -->
+    <div class="slbl">Cor do app</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="cs" style="margin-bottom:8px">Tema do barracão</div>
+      <div class="csw" id="csw-adm"></div>
+      <div style="margin-top:11px;display:flex;align-items:center;gap:9px"><span style="font-size:13px;color:var(--tmu)">Personalizada:</span><input type="color" id="custom-color-adm" value="#5c1a1a" style="width:34px;height:34px;border:none;border-radius:50%;cursor:pointer;background:none" onchange="applyColor(this.value)"/></div>
+    </div>
+
+    <!-- FUNÇÕES -->
+    <div class="slbl">Funções do axé</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="rwrap" id="roles-wrap-adm2"></div>
+      <button class="boutl" onclick="openOv('ov-addrole')">+ Adicionar função</button>
+    </div>
+
+    <!-- CARGOS -->
+    <div class="slbl">Cargos</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="rwrap" id="cargos-wrap-adm"></div>
+      <button class="boutl" onclick="openOv('ov-addcargo')">+ Adicionar cargo</button>
+    </div>
+
+    <!-- ORIXÁS -->
+    <div class="slbl">Orixás</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="cs" style="margin-bottom:8px">Gerencie a lista de orixás disponíveis</div>
+      <div class="rwrap" id="orixas-wrap-adm2"></div>
+      <button class="boutl" onclick="document.getElementById('orixa-edit-idx').value=-1;document.getElementById('orixa-sheet-title').textContent='Adicionar orixá';document.getElementById('orixa-name-i').value='';openOv('ov-addorixa')">+ Adicionar orixá</button>
+    </div>
+
+    <!-- BACKUP -->
+    <div class="slbl">Backup</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="crow" onclick="exportJSON()"><div><div class="cl">💾 Backup local (JSON)</div><div class="cs">Baixar cópia de todos os dados</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </div>
+
+    <!-- EXPORTAR -->
+    <div class="slbl">Exportar membros</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="crow" onclick="exportFichasPDF()"><div><div class="cl">📄 Fichas de cadastro (PDF)</div><div class="cs">Uma ficha por membro</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      <div class="crow" onclick="exportCSV()"><div><div class="cl">📊 Exportar lista (Excel/CSV)</div><div class="cs">Tabela com todos os membros</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </div>
+
+    <!-- SENHA -->
+    <div class="slbl">Segurança</div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="crow" onclick="['pwd-cur','pwd-new','pwd-cf'].forEach(id=>document.getElementById(id).value='');openOv('ov-pwd')"><div><div class="cl">🔒 Alterar senha</div><div class="cs">Protege o acesso admin</div></div><div class="ca"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </div>
+
+    <button class="bdanger" style="margin-bottom:8px" onclick="logout()">🚪 Sair do modo admin</button>
+  </div>
+</div>
+
+<div class="pg" id="pg-vitrine">
+  <div class="pi">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+      <div class="ptit">Vitrine</div>
+      <button onclick="openOv('ov-newslide')" style="background:var(--p);color:#fff;border:none;border-radius:var(--rsm);padding:7px 14px;font-size:13px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">+ Novo card</button>
+    </div>
+    <div class="psub">Cards publicados no barracão</div>
+    <div class="card" style="margin-top:12px">
+      <div id="slides-adm-inline"></div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="boutl" onclick="openOv('ov-newslide')">+ Novo card na vitrine</button>
+    </div>
+  </div>
+</div>
+
 <!-- VITRINE MODAL -->
 <div class="vmodal" id="vmodal" onclick="if(event.target===this)closeVModal()">
   <button class="vmodal-close" onclick="closeVModal()">✕</button>
@@ -752,7 +776,6 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
       </div>
       <div style="font-size:18px;font-weight:600;color:#fff;margin-bottom:4px">Administrador</div>
       <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:32px">Sessão ativa</div>
-      <button onclick="openOv('ov-admin-menu');closeLoginScreen()" style="width:100%;padding:14px;border-radius:12px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:15px;font-family:var(--sans);cursor:pointer;margin-bottom:10px;touch-action:manipulation">⚙️ Painel de administração</button>
       <button onclick="logout();closeLoginScreen()" style="width:100%;padding:14px;border-radius:12px;border:2px solid rgba(255,100,100,.4);background:transparent;color:rgba(255,150,150,.9);font-size:14px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">🚪 Sair do modo admin</button>
       <button onclick="closeLoginScreen()" style="width:100%;padding:12px;border-radius:12px;border:2px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.6);font-size:13px;font-family:var(--sans);cursor:pointer;margin-top:8px;touch-action:manipulation">Fechar</button>
     </div>
@@ -921,10 +944,6 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 </div>
 
-<!-- GOOGLE CONFIG -->
-</div>
-</div>
-
 <!-- CONFIG SHEETS -->
 <div class="ov" id="ov-name" style="z-index:400" onclick="if(event.target===this)closeOv('ov-name')"><div class="sheet"><div class="sh"></div><div class="stit">Nome do barracão</div><div class="fld"><label>Nome</label><input id="cfg-name-i" type="text"/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-name')">Cancelar</button><button class="bsave" onclick="saveName()">Salvar</button></div></div></div>
 <div class="ov" id="ov-addr" style="z-index:400" onclick="if(event.target===this)closeOv('ov-addr')"><div class="sheet"><div class="sh"></div><div class="stit">Endereço</div><div class="fld"><label>Endereço</label><input id="cfg-addr-i" type="text" placeholder="Rua, número, bairro..."/></div><div class="sbtns"><button class="bcancel" onclick="closeOv('ov-addr')">Cancelar</button><button class="bsave" onclick="saveAddr()">Salvar</button></div></div></div>
@@ -985,10 +1004,8 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 
 <!-- FIREBASE CONFIG -->
-</div>
 
 <!-- FIREBASE ADMIN LOGIN -->
-</div>
 
 <script>
 // ══ STATE ═══════════════════════════════════════
@@ -1116,7 +1133,7 @@ function toggleAdminMenu(){
     document.getElementById('amenu-err').textContent='';
     setTimeout(()=>document.getElementById('amenu-pwd').focus(),300);
   }
-  openOv('ov-admin-menu');
+  goTo('admin', null);
 }
 function toggleAdmin(){ toggleAdminMenu(); }
 function doAdminMenuLogin(){
@@ -1130,10 +1147,12 @@ function doAdminMenuLogin(){
     const dnm=document.getElementById('desk-nav-members'); if(dnm)dnm.style.display='flex';
     const nfm=document.getElementById('nav-fin-mob'); if(nfm)nfm.style.display='flex';
     const dff=document.getElementById('desk-nav-fin'); if(dff)dff.style.display='flex';
+    const ncm=document.getElementById('nav-config-mob'); if(ncm)ncm.style.display='flex';
+    const ncd=document.getElementById('nav-config-desk'); if(ncd)ncd.style.display='flex';
     const nvitm=document.getElementById('nav-vitrine-mob'); if(nvitm)nvitm.style.display='flex';
     const nvitd=document.getElementById('nav-vitrine-desk'); if(nvitd)nvitd.style.display='flex';
-    const sbm=document.getElementById('save-btn-mob'); if(sbm)sbm.style.display='flex';
-    const sbd=document.getElementById('save-btn-desk'); if(sbd)sbd.style.display='flex';
+    const sbm=document.getElementById('save-btn-top'); if(sbm)sbm.style.display='flex';
+    const sbd=document.getElementById('cfg-btn-top'); if(sbd)sbd.style.display='flex';
     document.getElementById('mem-fab').style.display='flex';
     document.getElementById('cal-fab').style.display='flex';
     // switch panel to logged-in state
@@ -1143,7 +1162,8 @@ function doAdminMenuLogin(){
     document.getElementById('tb-user-lbl').textContent='Admin ✓';
     document.getElementById('tb-user-btn').style.background='rgba(255,255,255,.25)';
     toast('Bem-vindo, admin! Axé 🌿');
-    renderPage(document.querySelector('.pg.on').id.replace('pg-',''));
+    closeLoginScreen();
+    goTo('home', document.querySelector('.nb'));
   } else { document.getElementById('amenu-err').textContent='Senha incorreta.'; }
 }
 function doLogin(){ doAdminMenuLogin(); }
@@ -1159,8 +1179,10 @@ function logout(){
   const dff2=document.getElementById('desk-nav-fin'); if(dff2)dff2.style.display='none';
   const nvitm2=document.getElementById('nav-vitrine-mob'); if(nvitm2)nvitm2.style.display='none';
   const nvitd2=document.getElementById('nav-vitrine-desk'); if(nvitd2)nvitd2.style.display='none';
-  const sbm2=document.getElementById('save-btn-mob'); if(sbm2)sbm2.style.display='none';
-  const sbd2=document.getElementById('save-btn-desk'); if(sbd2)sbd2.style.display='none';
+  const ncm2=document.getElementById('nav-config-mob'); if(ncm2)ncm2.style.display='none';
+  const ncd2=document.getElementById('nav-config-desk'); if(ncd2)ncd2.style.display='none';
+  const sbm2=document.getElementById('save-btn-top'); if(sbm2)sbm2.style.display='none';
+  const sbd2=document.getElementById('cfg-btn-top'); if(sbd2)sbd2.style.display='none';
   document.getElementById('mem-fab').style.display='none';
   document.getElementById('cal-fab').style.display='none';
   const cur=document.querySelector('.pg.on');
@@ -1211,6 +1233,9 @@ function renderPage(id){
   else if(id==='members')renderMembers();
   else if(id==='calendar')renderCalendar();
   else if(id==='finance')renderFinance();
+  else if(id==='vitrine'){renderSlidesAdm();}
+  else if(id==='config'){renderAdminPanel();}
+  else if(id==='admin'){}
 }
 
 // ══ VITRINE ════════════════════════════════════
@@ -1354,6 +1379,7 @@ function driveUrlToImg(url){
 // Cloudinary — credenciais fixas no código
 const getCldCloud  = () => 'dcuzgqqxa';
 const getCldPreset = () => 'ase_unsigned';
+let _cldUploading = false; // track upload in progress
 
 // ────────────────────────────────────────────────────────────────
 function previewDriveUrl(url,prevId){
@@ -1428,6 +1454,7 @@ function toggleMemEdit(on){
   }
 }
 function saveMemDet(){
+  if(_cldUploading){toast('Aguarde o upload da foto terminar...');return;}
   const idx=parseInt(document.getElementById('det-idx').value);
   const m=S.members[idx];
   m.name=document.getElementById('det-nome').value.trim()||m.name;
@@ -2310,24 +2337,29 @@ async function uploadToCloudinary(input, prevId, urlId, statusId){
   reader.onload=e=>{prev.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;};
   reader.readAsDataURL(file);
   if(statusEl)statusEl.textContent='⏫ Enviando foto...';
+  _cldUploading=true;
   try{
     const cldCloud=getCldCloud();
     const cldPreset=getCldPreset();
-    if(!cldCloud||!cldPreset){
-      if(statusEl)statusEl.innerHTML='⚠️ Configure o Firebase (ou Cloudinary) para enviar fotos.';
-      return;
-    }
     const fd=new FormData();
-    fd.append('file',file);fd.append('upload_preset',cldPreset);fd.append('folder','ase-ogun');
+    fd.append('file',file);
+    fd.append('upload_preset',cldPreset);
+    fd.append('folder','ase-ogun');
     const res=await fetch(`https://api.cloudinary.com/v1_1/${cldCloud}/image/upload`,{method:'POST',body:fd});
-    if(!res.ok)throw new Error('HTTP '+res.status);
+    if(!res.ok){
+      const errData=await res.json().catch(()=>({}));
+      throw new Error(errData.error?.message||'HTTP '+res.status);
+    }
     const data=await res.json();
     const url=data.secure_url.replace('/upload/','/upload/f_auto,q_auto,w_400/');
     document.getElementById(urlId).value=url;
     if(statusEl)statusEl.textContent='✅ Foto enviada!';
   }catch(err){
-    if(statusEl)statusEl.textContent='❌ Erro no envio.';
+    console.error('Cloudinary error:',err);
+    if(statusEl)statusEl.textContent='❌ Erro: '+err.message;
     document.getElementById(urlId).value='';
+  }finally{
+    _cldUploading=false;
   }
 }
 
