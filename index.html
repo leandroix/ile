@@ -963,6 +963,19 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 </div>
 
+<!-- OVERLAY: CRIAR ACESSO AO APP -->
+<div class="ov" id="ov-criar-acesso" style="z-index:300" onclick="if(event.target===this)closeOv('ov-criar-acesso')">
+<div class="sheet">
+  <div class="sh"></div>
+  <div class="stit">🔑 Criar acesso ao app</div>
+  <p style="font-size:13px;color:var(--tmu);margin-bottom:14px;line-height:1.5">Crie um login para que este membro possa acessar a própria ficha no app.</p>
+  <div class="fld"><label>E-mail de acesso *</label><input id="ca-email" type="email" placeholder="email@exemplo.com"/></div>
+  <div class="fld"><label>Senha provisória *</label><input id="ca-pwd" type="text" placeholder="Mínimo 6 caracteres"/></div>
+  <div id="ca-status" style="font-size:12px;color:var(--tmu);min-height:16px;margin-bottom:6px;text-align:center"></div>
+  <div class="sbtns"><button class="bcancel" onclick="closeOv('ov-criar-acesso')">Cancelar</button><button class="bsave" id="ca-save-btn" onclick="salvarCriarAcesso()">Criar acesso</button></div>
+</div>
+</div>
+
 <!-- MEMBER DETAIL PAGE (full screen, not overlay) -->
 <div id="pg-memdet" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(24px + var(--sb))">
   <!-- topbar -->
@@ -999,6 +1012,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
     <div id="det-tab-ficha">
       <div class="card" id="det-infocard" style="margin-bottom:12px"></div>
       <button style="width:100%;padding:11px;border-radius:var(--rsm);font-size:14px;font-family:var(--sans);cursor:pointer;border:none;background:var(--p);color:#fff;touch-action:manipulation;margin-bottom:8px" onclick="exportFichasPDF(parseInt(document.getElementById('det-idx').value))">📄 Exportar ficha PDF</button>
+      <button id="det-criar-acesso-btn" style="display:none;width:100%;padding:11px;border-radius:var(--rsm);font-size:14px;font-family:var(--sans);cursor:pointer;border:1.5px solid var(--pm);background:var(--pp);color:var(--pm);touch-action:manipulation;margin-bottom:8px" onclick="openCriarAcesso()">🔑 Criar acesso ao app</button>
       <button id="det-del-btn" style="display:none;width:100%;padding:11px;border-radius:var(--rsm);font-size:14px;font-family:var(--sans);cursor:pointer;border:none;background:var(--redp);color:var(--red);touch-action:manipulation;margin-bottom:4px" onclick="confirmDelMem()">🗑 Excluir cadastro</button>
     </div>
 
@@ -1706,6 +1720,8 @@ function openMemDet(idx){
   if(delBtn)delBtn.style.display=isAdmin?'block':'none';
   const addObrigBtn=document.getElementById('det-add-obrig-btn');
   if(addObrigBtn)addObrigBtn.style.display=isAdmin?'block':'none';
+  const criarAcessoBtn=document.getElementById('det-criar-acesso-btn');
+  if(criarAcessoBtn)criarAcessoBtn.style.display=(isAdmin&&!m.uid)?'block':'none';
   // reset to ficha tab
   detTab(document.querySelector('#det-tabs .tbbtn'),'ficha');
   renderObrigacoes(idx);
@@ -1803,6 +1819,49 @@ function confirmDelMem(){
     renderMembers();renderHome();toast('Membro removido.');
   });
 }
+
+// ── Criar acesso ao app para membro existente ──────────────
+function openCriarAcesso(){
+  const idx=parseInt(document.getElementById('det-idx').value);
+  const m=S.members[idx];
+  document.getElementById('ca-email').value=m.email||'';
+  document.getElementById('ca-pwd').value='';
+  document.getElementById('ca-status').textContent='';
+  const btn=document.getElementById('ca-save-btn');
+  btn.disabled=false; btn.textContent='Criar acesso';
+  openOv('ov-criar-acesso');
+}
+function salvarCriarAcesso(){
+  const email=document.getElementById('ca-email').value.trim();
+  const pwd=document.getElementById('ca-pwd').value.trim();
+  const statusEl=document.getElementById('ca-status');
+  const btn=document.getElementById('ca-save-btn');
+  if(!email||!pwd){toast('Preencha e-mail e senha');return;}
+  if(pwd.length<6){toast('A senha deve ter pelo menos 6 caracteres');return;}
+  btn.disabled=true; btn.textContent='Criando...';
+  statusEl.textContent='⏳ Criando acesso...';
+  const idx=parseInt(document.getElementById('det-idx').value);
+  const m=S.members[idx];
+  createMemberFirebaseUser(email,pwd,m)
+    .then(uid=>{
+      m.uid=uid;
+      m.email=email;
+      saveS();
+      fbAutoSave('members',m);
+      closeOv('ov-criar-acesso');
+      toast('Acesso criado com sucesso! 🔑');
+      // refresh detail view
+      openMemDet(idx);
+    })
+    .catch(e=>{
+      statusEl.textContent='❌ '+e.message;
+      toast('Erro: '+e.message);
+    })
+    .finally(()=>{
+      btn.disabled=false; btn.textContent='Criar acesso';
+    });
+}
+
 
 // ══ OBRIGAÇÕES ════════════════════════════════
 function renderObrigacoes(idx){
