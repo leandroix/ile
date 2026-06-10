@@ -1370,10 +1370,12 @@ function renderFichaMembro(){
 let slIdx=0,slTimer;
 function renderVitrine(){
   const tr=document.getElementById('vtrack'),dt=document.getElementById('vdots');
+  const vwrap=document.querySelector('.vwrap');
   if(!S.slides.length){
-    tr.innerHTML='<div style="width:100%;min-height:80px;display:flex;align-items:center;justify-content:center;background:var(--sf)"><p style="font-size:13px;color:var(--tmu)">Nenhum card.</p></div>';
+    if(vwrap)vwrap.style.display='none';
     dt.innerHTML='';return;
   }
+  if(vwrap)vwrap.style.display='';
   tr.innerHTML=S.slides.map((s,i)=>{
     if(s.type==='image'&&s.imgData)
       return`<div class="vslide" style="width:100%" onclick="openVModal(${i})"><img src="${s.imgData}"/><div class="vov"></div><div class="vc"><div class="vtit">${s.title}</div>${s.body?`<div class="vbody">${s.body}</div>`:''} ${s.link?`<a href="${s.link}" target="_blank" class="vlink" onclick="event.stopPropagation()">${s.linkLabel||'Ver mais'}</a>`:''}</div></div>`;
@@ -2608,7 +2610,7 @@ async function fbLoadAll(){
     if(!evSnap.empty)S.events=evSnap.docs.map(d=>d.data());
     if(!paySnap.empty)S.payments=paySnap.docs.map(d=>d.data());
     if(!expSnap.empty)S.expenses=expSnap.docs.map(d=>d.data());
-    if(!slSnap.empty)S.slides=slSnap.docs.map(d=>d.data());
+    S.slides=slSnap.docs.map(d=>d.data());
     Object.assign(S,keep);
     saveS();applyColor(S.color);
     renderPage(document.querySelector('.pg.on').id.replace('pg-',''));
@@ -2650,7 +2652,7 @@ function startFbListeners(){
   },{error:e=>console.warn('events listener:',e)}));
   // slides
   fbListeners.push(fbDb.collection('slides').onSnapshot(snap=>{
-    if(!snap.empty){S.slides=snap.docs.map(d=>d.data());saveS();renderVitrine();}
+    S.slides=snap.docs.map(d=>d.data());saveS();renderVitrine();
   },{error:e=>console.warn('slides listener:',e)}));
   // payments
   fbListeners.push(fbDb.collection('payments').onSnapshot(snap=>{
@@ -2951,7 +2953,7 @@ async function appInit(){
     if(!evSnap.empty)S.events=evSnap.docs.map(d=>d.data());
     if(!paySnap.empty)S.payments=paySnap.docs.map(d=>d.data());
     if(!expSnap.empty)S.expenses=expSnap.docs.map(d=>d.data());
-    if(!slSnap.empty)S.slides=slSnap.docs.map(d=>d.data());
+    S.slides=slSnap.docs.map(d=>d.data());
   }catch(e){ console.error('Firebase load error:',e.code,e.message); }
   Object.assign(S,keep);
   saveS(); applyColor(S.color);
