@@ -835,6 +835,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 <!-- BANNER MODAL -->
 <div class="vmodal" id="vmodal" onclick="if(event.target===this)closeVModal()">
   <button class="vmodal-close" onclick="closeVModal()">✕</button>
+  <img id="vmodal-img" src="" style="display:none;width:100%;max-height:300px;object-fit:cover"/>
   <div class="vmodal-txt">
     <div class="vmodal-title" id="vmodal-title"></div>
     <div class="vmodal-body" id="vmodal-body" style="font-size:15px;color:rgba(255,255,255,.88);line-height:1.7;white-space:pre-line"></div>
@@ -1143,6 +1144,17 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 <div class="ov" id="ov-newslide" style="z-index:400" onclick="if(event.target===this)closeOv('ov-newslide')">
 <div class="sheet">
   <div class="sh"></div><div class="stit">Banner do barracão</div>
+  <div class="fld"><label>Foto do banner (opcional)</label>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:4px">
+      <div id="sl-photo-prev" onclick="document.getElementById('sl-photo-file').click()" style="width:100%;height:120px;border-radius:10px;background:var(--sf);border:2px dashed var(--pmut);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--tmu);cursor:pointer;overflow:hidden">
+        📷 Toque para escolher foto
+      </div>
+      <input id="sl-photo-file" type="file" accept="image/*" style="display:none" onchange="uploadSlidePhoto(this)"/>
+      <input id="sl-photo-b64" type="hidden" value=""/>
+      <div id="sl-photo-status" style="font-size:11px;color:var(--tmu)"></div>
+      <button type="button" id="sl-photo-clear" onclick="clearSlidePhoto()" style="display:none;font-size:11px;color:var(--red);background:none;border:none;cursor:pointer;padding:0">✕ Remover foto</button>
+    </div>
+  </div>
   <div class="fld"><label>Título *</label><input id="sl-title" type="text" placeholder="Ex: Obrigação de junho"/></div>
   <div class="fld"><label>Texto completo</label><textarea id="sl-body" rows="4" placeholder="Escreva o aviso ou informação..."></textarea></div>
   <div class="fld"><label>Link (opcional)</label><input id="sl-link" type="url" placeholder="https://..."/></div>
@@ -1460,9 +1472,13 @@ function renderVitrine(){
   }
   vwrap.style.display='block';
   tr.innerHTML=S.slides.map((s,i)=>
-    `<div class="vslide" style="background:${s.color||S.color}" onclick="openVModal(${i})">
-      <div class="vb-title">${s.title}</div>
-      ${s.body?`<div class="vb-body">${s.body}</div>`:''}
+    `<div class="vslide" style="background:${s.color||S.color};position:relative;overflow:hidden;padding:${s.photo?'0':'12px 14px'}" onclick="openVModal(${i})">
+      ${s.photo?`<img src="${s.photo}" style="width:100%;height:140px;object-fit:cover;display:block"/>
+        <div style="padding:10px 14px;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent)">
+          <div class="vb-title">${s.title}</div>
+          ${s.body?`<div class="vb-body">${s.body}</div>`:''}
+        </div>`
+      :`<div class="vb-title">${s.title}</div>${s.body?`<div class="vb-body">${s.body}</div>`:''}`}
     </div>`
   ).join('');
   dt.innerHTML=S.slides.length>1?S.slides.map((_,i)=>`<div class="vdot${i===slIdx?' on':''}" onclick="goSlide(${i})"></div>`).join(''):'';
@@ -1492,6 +1508,31 @@ function initVitrineSwipe(){
     if(S.slides.length>1)slTimer=setInterval(()=>goSlide((slIdx+1)%S.slides.length),4200);
   },{passive:true});
 }
+// ── Slide photo upload/clear ──────────────────────────────
+async function uploadSlidePhoto(input){
+  const file=input.files[0];if(!file)return;
+  const statusEl=document.getElementById('sl-photo-status');
+  const prev=document.getElementById('sl-photo-prev');
+  const clearBtn=document.getElementById('sl-photo-clear');
+  if(statusEl)statusEl.textContent='⏳ Processando...';
+  try{
+    const b64=await resizeImageToBase64(file,800);
+    prev.innerHTML=`<img src="${b64}" style="width:100%;height:100%;object-fit:cover;border-radius:8px"/>`;
+    document.getElementById('sl-photo-b64').value=b64;
+    if(statusEl)statusEl.textContent='✅ Foto carregada!';
+    if(clearBtn)clearBtn.style.display='inline';
+  }catch(err){
+    if(statusEl)statusEl.textContent='❌ Erro: '+err.message;
+  }
+}
+function clearSlidePhoto(){
+  document.getElementById('sl-photo-b64').value='';
+  document.getElementById('sl-photo-prev').innerHTML='📷 Toque para escolher foto';
+  document.getElementById('sl-photo-status').textContent='';
+  document.getElementById('sl-photo-clear').style.display='none';
+  document.getElementById('sl-photo-file').value='';
+}
+
 function renderBannerAdm(){
   const w=document.getElementById('banner-adm-list');if(!w)return;
   if(!S.slides||!S.slides.length){w.innerHTML='<div style="font-size:13px;color:var(--tmu);padding:8px 0">Nenhum banner publicado.</div>';return;}
@@ -1525,6 +1566,19 @@ function editBanner(i){
   document.getElementById('sl-link').value=s.link||'';
   document.getElementById('sl-lbl').value=s.linkLabel||'';
   const _sc=document.getElementById('sl-color');if(_sc){_sc.value=s.color||S.color;const _p=document.getElementById('sl-color-preview');const _l=document.getElementById('sl-color-lbl');if(_p)_p.style.background=s.color||S.color;if(_l)_l.textContent=s.color||S.color;}
+  // load photo preview
+  const _slprev2=document.getElementById('sl-photo-prev');
+  const _slb64=document.getElementById('sl-photo-b64');
+  const _slclr2=document.getElementById('sl-photo-clear');
+  if(s.photo){
+    if(_slprev2)_slprev2.innerHTML=`<img src="${s.photo}" style="width:100%;height:100%;object-fit:cover"/>`;
+    if(_slb64)_slb64.value=s.photo;
+    if(_slclr2)_slclr2.style.display='inline';
+  } else {
+    if(_slprev2)_slprev2.innerHTML='📷 Toque para escolher foto';
+    if(_slb64)_slb64.value='';
+    if(_slclr2)_slclr2.style.display='none';
+  }
   document.querySelector('#ov-newslide .stit').textContent='Editar banner';
   openOv('ov-newslide');
 }
@@ -1538,6 +1592,8 @@ function openVModal(i){
   const s=S.slides[i];if(!s)return;
   document.getElementById('vmodal-title').textContent=s.title;
   document.getElementById('vmodal-body').textContent=s.body||'';
+  const _vimg=document.getElementById('vmodal-img');
+  if(_vimg){if(s.photo){_vimg.src=s.photo;_vimg.style.display='block';}else{_vimg.style.display='none';}}
   const lnk=document.getElementById('vmodal-link');
   if(s.link){lnk.href=s.link;lnk.textContent=s.linkLabel||'Ver mais';lnk.style.display='inline-block';}
   else{lnk.style.display='none';}
@@ -2580,14 +2636,21 @@ function addSlide(){
     s.color=document.getElementById('sl-color').value;
     s.link=document.getElementById('sl-link')?.value||'';
     s.linkLabel=document.getElementById('sl-lbl')?.value||'';
+    const _pb=document.getElementById('sl-photo-b64').value;
+    if(_pb) s.photo=_pb;
+    else if(_pb==='') s.photo='';
     saveS();fbAutoSave('slides',s);
     closeOv('ov-newslide');renderVitrine();toast('Banner atualizado! 🌿');
   } else {
-    const slide={id:Date.now(),type:'text',title,body:document.getElementById('sl-body').value,color:document.getElementById('sl-color').value,link:document.getElementById('sl-link')?.value||'',linkLabel:document.getElementById('sl-lbl')?.value||''};
+    const _pb2=document.getElementById('sl-photo-b64').value;
+    const slide={id:Date.now(),type:'text',title,body:document.getElementById('sl-body').value,color:document.getElementById('sl-color').value,link:document.getElementById('sl-link')?.value||'',linkLabel:document.getElementById('sl-lbl')?.value||'',photo:_pb2||''};
     S.slides.push(slide);saveS();fbAutoSave('slides',slide);
     closeOv('ov-newslide');renderVitrine();toast('Banner publicado! 🌿');
   }
-  ['sl-title','sl-body','sl-link','sl-lbl'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['sl-title','sl-body','sl-link','sl-lbl','sl-photo-b64'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const _slprev=document.getElementById('sl-photo-prev');if(_slprev)_slprev.innerHTML='📷 Toque para escolher foto';
+  const _slclr=document.getElementById('sl-photo-clear');if(_slclr)_slclr.style.display='none';
+  const _slst=document.getElementById('sl-photo-status');if(_slst)_slst.textContent='';
   _editingBannerIdx=-1;
 }
 
