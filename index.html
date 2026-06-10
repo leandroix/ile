@@ -1623,7 +1623,10 @@ function renderMembers(q=''){
   if(!arr.length){list.innerHTML='<div style="font-size:13px;color:var(--tmu);padding:6px 0">Nenhum encontrado.</div>';return;}
   list.innerHTML=arr.map(m=>{
     const st=mSt(m.id);
-    return`<div class="mi" onclick="openMemDetById(${m.id})"><div class="av">${ini(m.name)}</div><div style="flex:1"><div class="mname">${m.name}</div><div class="mrole">${m.role||''}${m.orixa?' · '+m.orixa:''}</div></div><span class="badge ${st}">${stL(st)}</span></div>`;
+    const avHtml=m.photo
+      ?`<div class="av" style="overflow:hidden"><img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/></div>`
+      :`<div class="av">${ini(m.name)}</div>`;
+    return`<div class="mi" onclick="openMemDetById(${m.id})">${avHtml}<div style="flex:1"><div class="mname">${m.name}</div><div class="mrole">${m.role||''}${m.orixa?' · '+m.orixa:''}</div></div><span class="badge ${st}">${stL(st)}</span></div>`;
   }).join('');
 }
 function filterMembers(v){renderMembers(v);}
