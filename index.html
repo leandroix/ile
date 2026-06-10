@@ -446,6 +446,30 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 .det-row:last-child{border-bottom:none}
 .det-lbl{font-size:12px;color:var(--tmu);width:80px;flex-shrink:0;padding-top:1px}
 .det-val{font-size:14px;color:var(--tm);flex:1;line-height:1.5}
+
+/* PULL-TO-REFRESH */
+#ptr-indicator{
+  position:absolute;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  height:0;overflow:hidden;
+  transition:height .2s ease, opacity .2s ease;
+  background:var(--bg);opacity:0;pointer-events:none;
+}
+#ptr-indicator.visible{height:52px;opacity:1}
+#ptr-indicator.releasing{background:var(--pp)}
+.ptr-spinner{
+  width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--pmut);border-top-color:var(--p);
+  animation:ptr-spin .7s linear infinite;flex-shrink:0;
+}
+.ptr-arrow{
+  width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+  transition:transform .2s ease;flex-shrink:0;
+}
+.ptr-arrow svg{width:18px;height:18px;stroke:var(--pm);fill:none;stroke-linecap:round;stroke-width:2}
+#ptr-indicator.releasing .ptr-arrow{transform:rotate(180deg)}
+.ptr-txt{font-size:12px;color:var(--tmu);font-family:var(--sans)}
+@keyframes ptr-spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -549,6 +573,13 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 <!-- ADMIN MENU OVERLAY -->
 
 <div class="pages">
+
+<!-- PULL-TO-REFRESH INDICATOR -->
+<div id="ptr-indicator">
+  <div class="ptr-arrow" id="ptr-arrow"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>
+  <div class="ptr-spinner" id="ptr-spinner" style="display:none"></div>
+  <span class="ptr-txt" id="ptr-txt">Puxe para atualizar</span>
+</div>
 
 <!-- HOME -->
 <div class="pg on" id="pg-home">
@@ -3031,6 +3062,79 @@ window.addEventListener('popstate', function(e){
 
 // Push initial home state so first back goes home, not exits
 history.replaceState({type:'page',id:'home'},'');
+
+// ── Pull-to-refresh ──────────────────────────────────
+(function(){
+  const THRESHOLD = 65; // px to trigger refresh
+  const MAX_PULL  = 90;
+  let startY = 0, pulling = false, refreshing = false;
+
+  const ind  = document.getElementById('ptr-indicator');
+  const arr  = document.getElementById('ptr-arrow');
+  const spin = document.getElementById('ptr-spinner');
+  const txt  = document.getElementById('ptr-txt');
+
+  function activePage(){
+    return document.querySelector('.pg.on');
+  }
+  function atTop(el){
+    return !el || el.scrollTop <= 0;
+  }
+
+  document.addEventListener('touchstart', function(e){
+    if(refreshing) return;
+    const pg = activePage();
+    if(!atTop(pg)) return;
+    startY = e.touches[0].clientY;
+    pulling = true;
+  }, {passive:true});
+
+  document.addEventListener('touchmove', function(e){
+    if(!pulling || refreshing) return;
+    const pg = activePage();
+    if(!atTop(pg)){ pulling=false; return; }
+    const dy = Math.max(0, e.touches[0].clientY - startY);
+    if(dy < 6) return;
+    const pull = Math.min(dy * 0.45, MAX_PULL);
+    ind.classList.add('visible');
+    arr.style.opacity = Math.min(pull / THRESHOLD, 1);
+    if(pull >= THRESHOLD){
+      ind.classList.add('releasing');
+      txt.textContent = 'Solte para atualizar';
+    } else {
+      ind.classList.remove('releasing');
+      txt.textContent = 'Puxe para atualizar';
+    }
+  }, {passive:true});
+
+  document.addEventListener('touchend', async function(e){
+    if(!pulling || refreshing) return;
+    pulling = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    if(dy < THRESHOLD * 2.1){
+      ind.classList.remove('visible','releasing');
+      return;
+    }
+    // Trigger refresh
+    refreshing = true;
+    ind.classList.add('visible');
+    ind.classList.remove('releasing');
+    arr.style.display = 'none';
+    spin.style.display = '';
+    txt.textContent = 'Atualizando...';
+    try {
+      if(typeof fbLoadAll === 'function') await fbLoadAll();
+      const cur = activePage();
+      if(cur) renderPage(cur.id.replace('pg-',''));
+    } catch(err){ console.warn('PTR error', err); }
+    await new Promise(r=>setTimeout(r, 350));
+    ind.classList.remove('visible');
+    spin.style.display = 'none';
+    arr.style.display = '';
+    txt.textContent = 'Puxe para atualizar';
+    refreshing = false;
+  }, {passive:true});
+})();
 
 appInit();
 </script>
