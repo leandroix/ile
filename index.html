@@ -110,12 +110,19 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 .vmodal-link{display:inline-block;background:var(--p);color:#fff;font-size:14px;padding:10px 22px;border-radius:22px;text-decoration:none;font-weight:500}
 
 /* HOME MINI PANEL */
-.mpanel{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 4px}
-.mcard{background:var(--sf);border:1px solid var(--bo);border-radius:var(--rmd);padding:12px 14px}
-.mlbl{font-size:11px;color:var(--tmu);margin-bottom:4px}
-.mval{font-family:var(--fs);font-size:21px;font-weight:600;line-height:1}
-.mval.g{color:#2d6b27}
-.mval.r{color:var(--red)}
+.mpanel{padding:12px 16px 4px}
+.mcard{background:var(--p);border-radius:var(--rmd);padding:14px 16px;color:#fff}
+.mlbl{font-size:11px;color:rgba(255,255,255,.6);margin-bottom:4px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+.mval{font-family:var(--fs);font-size:24px;font-weight:600;line-height:1;color:#fff}
+.mval.g{color:#fff}
+.mval.r{color:#fff}
+.mbar-wrap{margin:10px 0 6px;background:rgba(255,255,255,.18);border-radius:4px;height:5px;overflow:hidden}
+.mbar-fill{height:100%;background:var(--amb);border-radius:4px;transition:width .5s ease}
+.mbar-row{display:flex;justify-content:space-between;align-items:center}
+.mbar-lbl{font-size:11px;color:rgba(255,255,255,.7)}
+.mdesp-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.15)}
+.mdesp-lbl{font-size:12px;color:rgba(255,255,255,.6)}
+.mdesp-val{font-family:var(--fs);font-size:16px;font-weight:600;color:#ff9999}
 
 /* CARD */
 .card{background:var(--bg);border:1px solid var(--bo);border-radius:var(--rmd);padding:13px 15px;margin-bottom:10px}
@@ -254,7 +261,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 .bdanger{width:100%;background:var(--redp);color:var(--red);border:none;border-radius:var(--rmd);padding:11px;font-size:14px;font-family:var(--sans);cursor:pointer;margin-top:5px;-webkit-tap-highlight-color:transparent}
 
 /* CONFIRM */
-.cov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:200;align-items:center;justify-content:center;padding:20px}
+.cov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:9500;align-items:center;justify-content:center;padding:20px}
 .cov.on{display:flex}
 .cbox{background:var(--bg);border-radius:var(--rlg);padding:22px 18px;max-width:310px;width:100%;text-align:center}
 .ctit{font-family:var(--fs);font-size:17px;font-weight:600;margin-bottom:7px}
@@ -606,10 +613,23 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   <div class="vwrap"><div class="vtrack" id="vtrack"></div></div>
   <div class="vdots" id="vdots"></div>
   <div class="mpanel">
-    <div class="mcard"><div class="mlbl">Arrecadado</div><div class="mval g" id="h-rec">R$0</div><div style="font-size:11px;color:var(--tmu);margin-top:3px" id="h-rec-sub">pagamentos</div></div>
-    <div class="mcard"><div class="mlbl">Despesas</div><div class="mval r" id="h-desp">R$0</div><div style="font-size:11px;color:var(--tmu);margin-top:3px" id="h-desp-sub">lançamentos</div></div>
+    <div class="mcard">
+      <div class="mlbl">Arrecadado este mês</div>
+      <div class="mval g" id="h-rec">R$ 0</div>
+      <div class="mbar-wrap"><div class="mbar-fill" id="h-bar" style="width:0%"></div></div>
+      <div class="mbar-row">
+        <span class="mbar-lbl" id="h-rec-sub">0 pagamentos</span>
+        <span class="mbar-lbl" id="h-pct">0%</span>
+      </div>
+      <div class="mdesp-row">
+        <span class="mdesp-lbl">Total despesas</span>
+        <span class="mdesp-val" id="h-desp">R$ 0</span>
+      </div>
+    </div>
   </div>
   <div class="pi">
+    <div class="slbl">Próximos eventos</div>
+    <div class="card" id="home-events" style="margin-bottom:14px"></div>
     <div id="home-pix-card" style="display:none;background:var(--sf);border:1px solid var(--bo);border-radius:var(--rmd);overflow:hidden;margin-bottom:14px">
       <!-- ALERTA DE VENCIMENTO (faixa no topo) -->
       <div id="due-banner" style="display:none;padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.06)" onclick="if(isAdmin)openCfgFee()">
@@ -645,8 +665,6 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
       </div>
       </div>
     </div>
-    <div class="slbl">Próximos eventos</div>
-    <div class="card" id="home-events"></div>
   </div>
 </div>
 
@@ -980,55 +998,96 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 </div>
 </div>
 
-<!-- MEMBER DETAIL -->
-<div class="ov" id="ov-memdet" onclick="if(event.target===this)closeOv('ov-memdet')">
-<div class="sheet">
-  <div class="sh"></div>
+<!-- MEMBER DETAIL PAGE (full screen, not overlay) -->
+<div id="pg-memdet" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(24px + var(--sb))">
+  <!-- topbar -->
+  <div style="background:var(--p);padding:calc(12px + var(--st)) 16px 12px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10">
+    <button onclick="closeMemDet()" style="background:rgba(255,255,255,.15);border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;touch-action:manipulation">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div style="flex:1;min-width:0">
+      <div id="det-name" style="font-family:var(--fs);font-size:17px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+      <div id="det-role" style="font-size:10px;color:rgba(255,255,255,.65);margin-top:1px;text-transform:uppercase;letter-spacing:.04em"></div>
+    </div>
+    <div id="det-adm-btns" style="display:none;flex-shrink:0">
+      <button onclick="toggleMemEdit(true)" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 11px;color:rgba(255,255,255,.9);font-size:12px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">✏️ Editar</button>
+    </div>
+  </div>
+
   <input type="hidden" id="det-idx"/>
-  <div style="display:flex;flex-direction:column;align-items:center;padding:6px 0 14px;text-align:center">
-    <div id="det-av" style="width:66px;height:66px;border-radius:50%;background:var(--pp);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;color:var(--pm);border:2px solid var(--pmut);margin-bottom:8px;overflow:hidden"></div>
-    <div id="det-name" style="font-family:var(--fs);font-size:19px;font-weight:600;color:var(--tm)"></div>
-    <div id="det-role" style="font-size:13px;color:var(--tmu);margin-top:2px"></div>
+
+  <!-- avatar -->
+  <div style="display:flex;flex-direction:column;align-items:center;padding:20px 16px 10px">
+    <div id="det-av" style="width:76px;height:76px;border-radius:50%;background:var(--pp);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:500;color:var(--pm);border:3px solid var(--pmut);overflow:hidden;margin-bottom:8px"></div>
   </div>
-  <!-- VIEW MODE -->
-  <div id="det-view">
-    <div class="card" id="det-infocard" style="margin-bottom:10px"></div>
-    <div id="det-adm-btns" style="display:none">
-      <div style="display:flex;gap:8px">
-        <button style="flex:1;padding:11px;border-radius:var(--rsm);font-size:14px;font-family:var(--sans);cursor:pointer;border:none;background:var(--sf);color:var(--tmu);touch-action:manipulation" onclick="toggleMemEdit(true)">✏️ Editar</button>
-        <button style="flex:1;padding:11px;border-radius:var(--rsm);font-size:14px;font-family:var(--sans);cursor:pointer;border:none;background:var(--redp);color:var(--red);touch-action:manipulation" onclick="confirmDelMem()">🗑 Excluir</button>
-      </div>
+
+  <div style="padding:0 16px">
+
+    <!-- TABS -->
+    <div class="tabrow" id="det-tabs" style="margin-bottom:14px">
+      <button class="tbbtn on" onclick="detTab(this,'ficha')">Ficha</button>
+      <button class="tbbtn" onclick="detTab(this,'obrig')">Obrigações</button>
+
     </div>
-    <button style="width:100%;margin-top:8px;padding:11px;border-radius:var(--rsm);font-size:14px;font-family:var(--sans);cursor:pointer;border:none;background:var(--p);color:#fff;touch-action:manipulation" onclick="exportFichasPDF(parseInt(document.getElementById('det-idx').value))">📄 Exportar ficha PDF</button>
-    <button class="boutl" onclick="closeOv('ov-memdet')" style="margin-top:6px">Fechar</button>
-  </div>
-  <!-- EDIT MODE -->
-  <div id="det-edit" style="display:none">
-    <div class="fld"><label>Foto do membro</label>
-      <div id="det-photo-wrap" style="display:flex;flex-direction:column;gap:8px">
-        <div id="det-photo-prev" style="width:72px;height:72px;border-radius:50%;background:var(--pp);display:flex;align-items:center;justify-content:center;font-size:28px;border:2px dashed var(--pmut);overflow:hidden;margin:0 auto;cursor:pointer" onclick="document.getElementById('det-photo-file').click()">📷</div>
-        <input id="det-photo-file" type="file" accept="image/*" capture="environment" style="display:none" onchange="uploadToCloudinary(this,'det-photo-prev','det-photo-url','det-photo-status')"/>
-        <input id="det-photo-url" type="hidden" value=""/>
-        <div id="det-photo-status" style="font-size:11px;color:var(--tmu);text-align:center;line-height:1.5">Toque na foto para escolher da galeria</div>
-      </div>
+
+    <!-- TAB: FICHA (view) -->
+    <div id="det-tab-ficha">
+      <div class="card" id="det-infocard" style="margin-bottom:12px"></div>
+      <button style="width:100%;padding:11px;border-radius:var(--rsm);font-size:14px;font-family:var(--sans);cursor:pointer;border:none;background:var(--p);color:#fff;touch-action:manipulation;margin-bottom:8px" onclick="exportFichasPDF(parseInt(document.getElementById('det-idx').value))">📄 Exportar ficha PDF</button>
+      <button id="det-del-btn" style="display:none;width:100%;padding:11px;border-radius:var(--rsm);font-size:14px;font-family:var(--sans);cursor:pointer;border:none;background:var(--redp);color:var(--red);touch-action:manipulation;margin-bottom:4px" onclick="confirmDelMem()">🗑 Excluir cadastro</button>
     </div>
-    <div class="fld"><label>Nome completo</label><input id="det-nome" type="text"/></div>
-    <div class="fld"><label>Data de nascimento</label><input id="det-nasc" type="date"/></div>
-    <div class="fld"><label>Função no axé</label><select id="det-funcao"></select></div>
-    <div class="fld"><label>Cargo</label><select id="det-cargo"><option value="">— Sem cargo —</option></select></div>
-    <div class="fld"><label>Orixá</label><select id="det-orixa"></select></div>
-    <div class="fld"><label>Orunko</label><input id="det-orunko" type="text" placeholder="Nome de santo"/></div>
-    <div class="fld"><label>Odú</label><input id="det-odu" type="text" placeholder="Ex: Ogbe, Oyeku..."/></div>
-    <div class="fld"><label>Data de iniciação</label><input id="det-init" type="date"/></div>
-    <div class="fld"><label>Assentamentos</label><textarea id="det-assent" placeholder="Orixás assentados..."></textarea></div>
-    <div class="fld"><label>Juntó</label><input id="det-junto" type="text" placeholder="Orixá juntó"/></div>
-    <div class="fld"><label>Exu</label><input id="det-exu" type="text" placeholder="Nome do Exu"/></div>
-    <div class="fld"><label>Telefone</label><input id="det-tel" type="tel"/></div>
-    <div class="fld"><label>E-mail</label><input id="det-email" type="email"/></div>
-    <div class="fld"><label>Observações</label><textarea id="det-obs"></textarea></div>
-    <div class="sbtns"><button class="bcancel" onclick="toggleMemEdit(false)">Cancelar</button><button class="bsave" onclick="saveMemDet()">Salvar</button></div>
-  </div>
-</div>
+
+    <!-- TAB: OBRIGAÇÕES -->
+    <div id="det-tab-obrig" style="display:none">
+
+      <!-- FORMULÁRIO INLINE (oculto por padrão) -->
+      <div id="det-obrig-form" style="display:none;background:var(--sf);border:1px solid var(--bo);border-radius:var(--rmd);padding:14px;margin-bottom:14px">
+        <div style="font-family:var(--fs);font-size:15px;font-weight:600;color:var(--tm);margin-bottom:12px" id="obrig-form-title">Registrar obrigação</div>
+        <input type="hidden" id="obrig-edit-id" value=""/>
+        <div class="fld"><label>Data *</label><input id="obrig-data" type="date"/></div>
+        <div class="fld"><label>Local</label><input id="obrig-local" type="text" placeholder="Barracão, Salão, Roça..."/></div>
+        <div class="fld" style="margin-bottom:0"><label>Descrição *</label><textarea id="obrig-desc" placeholder="Descreva tudo que foi feito: preceitos, animais, ervas, vestimenta, quem participou..." style="min-height:110px"></textarea></div>
+        <div class="sbtns" style="margin-top:12px">
+          <button class="bcancel" onclick="cancelObrigForm()">Cancelar</button>
+          <button class="bsave" onclick="saveObrigacao()">Salvar</button>
+        </div>
+      </div>
+
+      <!-- BOTÃO REGISTRAR -->
+      <button id="det-add-obrig-btn" style="display:none;width:100%;margin-bottom:14px;padding:10px;border-radius:var(--rsm);font-size:13px;font-family:var(--sans);cursor:pointer;border:1.5px dashed var(--pmut);background:var(--pp);color:var(--pm);touch-action:manipulation" onclick="openAddObrigacao()">+ Registrar nova obrigação</button>
+
+      <!-- LISTA -->
+      <div id="det-obrigacoes-list"></div>
+    </div>
+
+    <!-- TAB: EDITAR -->
+    <div id="det-tab-editar" style="display:none">
+      <div class="fld"><label>Foto do membro</label>
+        <div id="det-photo-wrap" style="display:flex;flex-direction:column;gap:8px">
+          <div id="det-photo-prev" style="width:72px;height:72px;border-radius:50%;background:var(--pp);display:flex;align-items:center;justify-content:center;font-size:28px;border:2px dashed var(--pmut);overflow:hidden;margin:0 auto;cursor:pointer" onclick="document.getElementById('det-photo-file').click()">📷</div>
+          <input id="det-photo-file" type="file" accept="image/*" capture="environment" style="display:none" onchange="uploadToCloudinary(this,'det-photo-prev','det-photo-url','det-photo-status')"/>
+          <input id="det-photo-url" type="hidden" value=""/>
+          <div id="det-photo-status" style="font-size:11px;color:var(--tmu);text-align:center;line-height:1.5">Toque na foto para escolher da galeria</div>
+        </div>
+      </div>
+      <div class="fld"><label>Nome completo</label><input id="det-nome" type="text"/></div>
+      <div class="fld"><label>Data de nascimento</label><input id="det-nasc" type="date"/></div>
+      <div class="fld"><label>Função no axé</label><select id="det-funcao"></select></div>
+      <div class="fld"><label>Cargo</label><select id="det-cargo"><option value="">— Sem cargo —</option></select></div>
+      <div class="fld"><label>Orixá</label><select id="det-orixa"></select></div>
+      <div class="fld"><label>Orunko</label><input id="det-orunko" type="text" placeholder="Nome de santo"/></div>
+      <div class="fld"><label>Odú</label><input id="det-odu" type="text" placeholder="Ex: Ogbe, Oyeku..."/></div>
+      <div class="fld"><label>Data de iniciação</label><input id="det-init" type="date"/></div>
+      <div class="fld"><label>Assentamentos</label><textarea id="det-assent" placeholder="Orixás assentados..."></textarea></div>
+      <div class="fld"><label>Juntó</label><input id="det-junto" type="text" placeholder="Orixá juntó"/></div>
+      <div class="fld"><label>Exu</label><input id="det-exu" type="text" placeholder="Nome do Exu"/></div>
+      <div class="fld"><label>Telefone</label><input id="det-tel" type="tel"/></div>
+      <div class="fld"><label>E-mail</label><input id="det-email" type="email"/></div>
+      <div class="fld"><label>Observações</label><textarea id="det-obs"></textarea></div>
+      <div class="sbtns"><button class="bcancel" onclick="toggleMemEdit(false)">Cancelar</button><button class="bsave" onclick="saveMemDet()">Salvar</button></div>
+    </div>
+
+  </div><!-- /padding -->
 </div>
 
 <!-- NEW/EDIT PAYMENT -->
@@ -1481,10 +1540,14 @@ function renderHome(){
   document.getElementById('tname').textContent=S.name;
   const rec=S.payments.filter(p=>p.status==='ok').reduce((a,p)=>a+p.value,0);
   const desp=S.expenses.reduce((a,e)=>a+e.value,0);
-  document.getElementById('h-rec').textContent='R$'+rec.toLocaleString('pt-BR');
-  document.getElementById('h-desp').textContent='R$'+desp.toLocaleString('pt-BR');
-  document.getElementById('h-rec-sub').textContent=S.payments.filter(p=>p.status==='ok').length+' pagamentos';
-  document.getElementById('h-desp-sub').textContent=S.expenses.length+' lançamentos';
+  const okPays=S.payments.filter(p=>p.status==='ok');
+  document.getElementById('h-rec').textContent='R$ '+rec.toLocaleString('pt-BR');
+  document.getElementById('h-desp').textContent='R$ '+desp.toLocaleString('pt-BR');
+  const totalMem=S.members.length||1;
+  const pct=Math.min(100,Math.round((okPays.length/totalMem)*100));
+  document.getElementById('h-rec-sub').textContent=okPays.length+' pagos de '+S.members.length+' membros';
+  document.getElementById('h-pct').textContent=pct+'%';
+  document.getElementById('h-bar').style.width=pct+'%';
   const now=new Date();now.setHours(0,0,0,0);
   const up=S.events.filter(e=>new Date(e.date+'T00:00:00')>=now).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);
   const el=document.getElementById('home-events');
@@ -1509,8 +1572,7 @@ function renderMembers(q=''){
   if(!arr.length){list.innerHTML='<div style="font-size:13px;color:var(--tmu);padding:6px 0">Nenhum encontrado.</div>';return;}
   list.innerHTML=arr.map(m=>{
     const st=mSt(m.id);
-    const idx=S.members.indexOf(m);
-    return`<div class="mi" onclick="openMemDet(${idx})"><div class="av">${ini(m.name)}</div><div style="flex:1"><div class="mname">${m.name}</div><div class="mrole">${m.role}${m.orixa?' · '+m.orixa:''}</div></div><span class="badge ${st}">${stL(st)}</span></div>`;
+    return`<div class="mi" onclick="openMemDetById(${m.id})"><div class="av">${ini(m.name)}</div><div style="flex:1"><div class="mname">${m.name}</div><div class="mrole">${m.role||''}${m.orixa?' · '+m.orixa:''}</div></div><span class="badge ${st}">${stL(st)}</span></div>`;
   }).join('');
 }
 function filterMembers(v){renderMembers(v);}
@@ -1593,36 +1655,68 @@ function addMember(){
 }
 
 function openMemDet(idx){
+  try{
+  idx=parseInt(idx);
   const m=S.members[idx];
+  if(!m){toast('Membro não encontrado.');return;}
   document.getElementById('det-idx').value=idx;
   if(m.photo){document.getElementById('det-av').innerHTML=`<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;}
-  else{document.getElementById('det-av').textContent=ini(m.name);}
-  document.getElementById('det-name').textContent=m.name;
-  document.getElementById('det-role').textContent=(m.orunko?m.orunko+' · ':'')+m.role+(m.cargo?' | '+m.cargo:'')+(m.orixa?' · '+m.orixa:'');
+  else{document.getElementById('det-av').textContent=ini(m.name||'?');}
+  document.getElementById('det-name').textContent=m.name||'—';
+  document.getElementById('det-role').textContent=(m.orunko?m.orunko+' · ':'')+( m.role||'')+(m.cargo?' | '+m.cargo:'')+(m.orixa?' · '+m.orixa:'');
   const st=mSt(m.id);
   const fd=d=>{if(!d)return'—';try{const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}catch(e){return d;}};
   document.getElementById('det-infocard').innerHTML=`
-    <div class="det-row"><span class="det-lbl">Função</span><span class="det-val">${m.role||'—'}</span></div>
-    <div class="det-row"><span class="det-lbl">Orixá</span><span class="det-val">${m.orixa||'—'}</span></div>
-    ${m.orunko?`<div class="det-row"><span class="det-lbl">Orunko</span><span class="det-val">${m.orunko}</span></div>`:''}
-    ${m.odu?`<div class="det-row"><span class="det-lbl">Odú</span><span class="det-val">${m.odu}</span></div>`:''}
     ${m.birthDate?`<div class="det-row"><span class="det-lbl">Nascimento</span><span class="det-val">${fd(m.birthDate)}</span></div>`:''}
-    <div class="det-row"><span class="det-lbl">Iniciação</span><span class="det-val">${fd(m.initDate)}</span></div>
-    ${m.assentamentos?`<div class="det-row" style="flex-direction:column;gap:4px"><span class="det-lbl">Assentamentos</span><span style="font-size:13px;color:var(--tm);line-height:1.5">${m.assentamentos}</span></div>`:''}
-    ${m.junto?`<div class="det-row"><span class="det-lbl">Juntó</span><span class="det-val">${m.junto}</span></div>`:''}
-    ${m.exu?`<div class="det-row"><span class="det-lbl">Exu</span><span class="det-val">${m.exu}</span></div>`:''}
-    ${m.phone?`<div class="det-row"><span class="det-lbl">Telefone</span><span class="det-val">${m.phone}</span></div>`:''}
     ${m.email?`<div class="det-row"><span class="det-lbl">E-mail</span><span class="det-val">${m.email}</span></div>`:''}
+    ${m.phone?`<div class="det-row"><span class="det-lbl">Telefone</span><span class="det-val">${m.phone}</span></div>`:''}
+    <div class="det-row"><span class="det-lbl">Iniciação</span><span class="det-val">${fd(m.initDate)}</span></div>
+    <div class="det-row"><span class="det-lbl">Orixá</span><span class="det-val">${m.orixa||'—'}</span></div>
+    ${m.junto?`<div class="det-row"><span class="det-lbl">Juntó</span><span class="det-val">${m.junto}</span></div>`:''}
+    ${m.odu?`<div class="det-row"><span class="det-lbl">Odú</span><span class="det-val">${m.odu}</span></div>`:''}
+    ${m.exu?`<div class="det-row"><span class="det-lbl">Exu</span><span class="det-val">${m.exu}</span></div>`:''}
+    <div class="det-row"><span class="det-lbl">Função</span><span class="det-val">${m.role||'—'}</span></div>
+    ${m.cargo?`<div class="det-row"><span class="det-lbl">Cargo</span><span class="det-val">${m.cargo}</span></div>`:''}
+    ${m.orunko?`<div class="det-row"><span class="det-lbl">Orunko</span><span class="det-val">${m.orunko}</span></div>`:''}
+    ${m.assentamentos?`<div class="det-row" style="flex-direction:column;gap:4px"><span class="det-lbl">Assentamentos</span><span style="font-size:13px;color:var(--tm);line-height:1.5">${m.assentamentos}</span></div>`:''}
     <div class="det-row"><span class="det-lbl">Status</span><span class="det-val"><span class="badge ${st}">${stL(st)}</span></span></div>
     ${m.obs?`<div class="det-row" style="flex-direction:column;gap:4px"><span class="det-lbl">Obs.</span><span style="font-size:13px;color:var(--tm);line-height:1.5">${m.obs}</span></div>`:''}
   `;
-  document.getElementById('det-adm-btns').style.display=isAdmin?'block':'none';
-  toggleMemEdit(false);
-  openOv('ov-memdet');
+  const admBtns=document.getElementById('det-adm-btns');
+  if(admBtns)admBtns.style.display=isAdmin?'flex':'none';
+  const delBtn=document.getElementById('det-del-btn');
+  if(delBtn)delBtn.style.display=isAdmin?'block':'none';
+  const addObrigBtn=document.getElementById('det-add-obrig-btn');
+  if(addObrigBtn)addObrigBtn.style.display=isAdmin?'block':'none';
+  // reset to ficha tab
+  detTab(document.querySelector('#det-tabs .tbbtn'),'ficha');
+  renderObrigacoes(idx);
+  document.getElementById('pg-memdet').style.display='block';
+  history.pushState({type:'pgmemdet',idx:idx},'');
+  }catch(err){console.error('openMemDet error:',err);toast('Erro ao abrir ficha: '+err.message);}
+}
+function closeMemDet(){
+  document.getElementById('pg-memdet').style.display='none';
+  history.back();
+}
+function openMemDetById(id){
+  const idx=S.members.findIndex(m=>m.id==id);
+  if(idx===-1){toast('Membro não encontrado.');return;}
+  openMemDet(idx);
+}
+function detTab(btn, id){
+  document.querySelectorAll('#det-tabs .tbbtn').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  ['ficha','obrig'].forEach(t=>{
+    const el=document.getElementById('det-tab-'+t);
+    if(el)el.style.display=(t===id)?'block':'none';
+  });
+  // always hide editar when switching via tabs
+  const editEl=document.getElementById('det-tab-editar');
+  if(editEl)editEl.style.display='none';
+  if(id!=='obrig') cancelObrigForm();
 }
 function toggleMemEdit(on){
-  document.getElementById('det-view').style.display=on?'none':'block';
-  document.getElementById('det-edit').style.display=on?'block':'none';
   if(on){
     const idx=parseInt(document.getElementById('det-idx').value);
     const m=S.members[idx];
@@ -1646,6 +1740,13 @@ function toggleMemEdit(on){
     if(m.photo){prev.innerHTML=`<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;}
     else{prev.innerHTML='📷';}
     document.getElementById('det-photo-status').textContent=m.photo?'Foto carregada — toque para trocar':'Toque na foto para escolher da galeria';
+    const editTab=document.getElementById('det-tab-editar');
+    if(editTab)editTab.style.display='block';
+    ['ficha','obrig'].forEach(t=>{const el=document.getElementById('det-tab-'+t);if(el)el.style.display='none';});
+    document.querySelectorAll('#det-tabs .tbbtn').forEach(b=>b.classList.remove('on'));
+    document.getElementById('pg-memdet').scrollTo(0,0);
+  } else {
+    detTab(document.querySelector('#det-tabs .tbbtn'),'ficha');
   }
 }
 function saveMemDet(){
@@ -1668,7 +1769,10 @@ function saveMemDet(){
   m.obs=document.getElementById('det-obs').value;
   const pd=document.getElementById('det-photo-url').value.trim();
   if(pd)m.photo=pd;
-  saveS();fbAutoSave('members',S.members[idx]);closeOv('ov-memdet');renderMembers();renderHome();toast('Ficha atualizada!');
+  saveS();fbAutoSave('members',S.members[idx]);
+  renderMembers();renderHome();
+  toast('Ficha atualizada!');
+  toggleMemEdit(false);
 }
 function confirmDelMem(){
   const idx=parseInt(document.getElementById('det-idx').value);
@@ -1676,7 +1780,115 @@ function confirmDelMem(){
     const id=S.members[idx].id;
     S.members.splice(idx,1);
     S.payments=S.payments.filter(p=>p.memberId!==id);
-    saveS();fbAutoDelete('members',id);closeOv('ov-memdet');renderMembers();renderHome();toast('Membro removido.');
+    saveS();fbAutoDelete('members',id);
+    closeMemDet();
+    renderMembers();renderHome();toast('Membro removido.');
+  });
+}
+
+// ══ OBRIGAÇÕES ════════════════════════════════
+function renderObrigacoes(idx){
+  const m=S.members[idx];
+  const list=document.getElementById('det-obrigacoes-list');
+  if(!list)return;
+  // Garante que obrigacoes é sempre um array (Firebase pode salvar como objeto)
+  let obrigacoes=m.obrigacoes;
+  if(!obrigacoes){obrigacoes=[];}
+  else if(!Array.isArray(obrigacoes)){obrigacoes=Object.values(obrigacoes);}
+  obrigacoes=obrigacoes.slice().sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+  const btn=document.getElementById('det-add-obrig-btn');
+  if(btn)btn.style.display=isAdmin?'block':'none';
+  if(!obrigacoes.length){
+    list.innerHTML=`<div style="font-size:13px;color:var(--tmu);padding:8px 0 4px">Nenhuma obrigação registrada.</div>`;
+    return;
+  }
+  const mo=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  list.innerHTML=obrigacoes.map(o=>{
+    const parts=o.data.split('-');
+    const d=parts[2];const mon=mo[parseInt(parts[1])-1];const yr=parts[0];
+    return`<div style="display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--bo)">
+      <div style="background:var(--p);color:#fff;border-radius:var(--rsm);width:42px;min-width:42px;height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+        <span style="font-family:var(--fs);font-size:17px;font-weight:600;line-height:1">${d}</span>
+        <span style="font-size:9px;opacity:.8;text-transform:uppercase;margin-top:2px">${mon}</span>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+          <div style="font-size:11px;color:var(--tmu)">${o.local||'Local não informado'} · ${yr}</div>
+          ${isAdmin?`<div style="display:flex;gap:4px;flex-shrink:0">
+            <button onclick="editObrigacao('${o.id}')" style="background:none;border:1px solid var(--bo);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;font-size:12px">✏️</button>
+            <button onclick="delObrigacao('${o.id}')" style="background:none;border:1px solid var(--bo);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;color:var(--red)"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+          </div>`:''}
+        </div>
+        <div style="font-size:13px;color:var(--tm);margin-top:5px;line-height:1.6;white-space:pre-line">${o.desc}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddObrigacao(){
+  document.getElementById('obrig-edit-id').value='';
+  document.getElementById('obrig-form-title').textContent='Registrar obrigação';
+  document.getElementById('obrig-data').value=new Date().toISOString().slice(0,10);
+  document.getElementById('obrig-local').value='';
+  document.getElementById('obrig-desc').value='';
+  document.getElementById('det-obrig-form').style.display='block';
+  document.getElementById('det-add-obrig-btn').style.display='none';
+  document.getElementById('pg-memdet').scrollTo(0,0);
+}
+
+function cancelObrigForm(){
+  const form=document.getElementById('det-obrig-form');
+  if(form)form.style.display='none';
+  const btn=document.getElementById('det-add-obrig-btn');
+  if(btn&&isAdmin)btn.style.display='block';
+}
+
+function editObrigacao(obrigId){
+  const idx=parseInt(document.getElementById('det-idx').value);
+  const m=S.members[idx];
+  const o=(m.obrigacoes||[]).find(x=>x.id===obrigId);
+  if(!o)return;
+  document.getElementById('obrig-edit-id').value=obrigId;
+  document.getElementById('obrig-form-title').textContent='Editar obrigação';
+  document.getElementById('obrig-data').value=o.data;
+  document.getElementById('obrig-local').value=o.local||'';
+  document.getElementById('obrig-desc').value=o.desc;
+  document.getElementById('det-obrig-form').style.display='block';
+  document.getElementById('det-add-obrig-btn').style.display='none';
+  // switch to obrig tab if not already there
+  const obrigTabBtn=document.querySelectorAll('#det-tabs .tbbtn')[1];
+  detTab(obrigTabBtn,'obrig');
+  document.getElementById('pg-memdet').scrollTo(0,0);
+}
+
+function saveObrigacao(){
+  const idx=parseInt(document.getElementById('det-idx').value);
+  const editId=document.getElementById('obrig-edit-id').value;
+  const data=document.getElementById('obrig-data').value;
+  const local=document.getElementById('obrig-local').value.trim();
+  const desc=document.getElementById('obrig-desc').value.trim();
+  if(!data||!desc){toast('Preencha a data e a descrição.');return;}
+  const m=S.members[idx];
+  if(!m.obrigacoes)m.obrigacoes=[];
+  if(editId){
+    const o=m.obrigacoes.find(x=>x.id===editId);
+    if(o){o.data=data;o.local=local;o.desc=desc;}
+  } else {
+    m.obrigacoes.push({id:'ob'+Date.now(),data,local,desc});
+  }
+  saveS();
+  fbAutoSave('members',m);
+  cancelObrigForm();
+  renderObrigacoes(idx);
+  toast(editId?'Obrigação atualizada!':'Obrigação registrada! 🌿');
+}
+
+function delObrigacao(obrigId){
+  const idx=parseInt(document.getElementById('det-idx').value);
+  const m=S.members[idx];
+  showConfirm('Excluir esta obrigação?',()=>{
+    m.obrigacoes=(m.obrigacoes||[]).filter(x=>x.id!==obrigId);
+    saveS();fbAutoSave('members',m);renderObrigacoes(idx);toast('Obrigação removida.');
   });
 }
 
@@ -2725,7 +2937,7 @@ function fbHideLoading(){
 // ══ FIREBASE AUTH GATE ══════════════════════════════════════
 
 // ▼▼▼ COLOQUE AQUI O E-MAIL DA CONTA ADMIN ▼▼▼
-const ADMIN_EMAILS = ['leandro@ase.com','eneida@ase.com']; // adicione ou altere conforme necessário
+const ADMIN_EMAILS = ['aseoguneneida@gmail.com','xiordnael@gmail.com']; // admins autorizados
 
 let currentUser = null;
 let currentUserRole = null;
@@ -3057,7 +3269,9 @@ window.addEventListener('popstate', function(e){
     if(ls && ls.style.display==='flex'){ ls.style.display='none'; return; }
     return;
   }
-  if(st.type==='ov'){
+  if(st.type==='pgmemdet'){
+    document.getElementById('pg-memdet').style.display='none';
+  } else if(st.type==='ov'){
     // Close this overlay
     const el = document.getElementById(st.id);
     if(el) el.classList.remove('on');
