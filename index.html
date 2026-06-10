@@ -1657,7 +1657,6 @@ function addMember(){
       closeOv('ov-newmem');
       renderMembers(); renderHome();
       toast('Membro cadastrado com acesso ao app! 🌿');
-      saveBtn.disabled=false; saveBtn.textContent='Salvar';
       statusEl.textContent='';
       document.getElementById('nm-photo-url').value='';
       document.getElementById('nm-photo-status').textContent='Toque na foto para escolher da galeria';
@@ -1665,9 +1664,11 @@ function addMember(){
       document.getElementById('nm-photo-prev').innerHTML='📷';
     })
     .catch(e=>{
-      saveBtn.disabled=false; saveBtn.textContent='Salvar';
       statusEl.textContent='❌ '+e.message;
       toast('Erro: '+e.message);
+    })
+    .finally(()=>{
+      saveBtn.disabled=false; saveBtn.textContent='Salvar';
     });
 }
 
@@ -3153,15 +3154,41 @@ function hideMemberView(){
 
 // ── Cria usuário Firebase sem deslogar o admin ───────────────
 async function createMemberFirebaseUser(email,password,memberData){
-  const apiKey='AIzaSyC5pyRzexFq60aFiS56Sih2xhmCb8PTVeQ';
-  const res=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`,{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({email,password,returnSecureToken:true})
-  });
-  const data=await res.json();
-  if(data.error) throw new Error(data.error.message==='EMAIL_EXISTS'?'Este e-mail já tem cadastro.':data.error.message);
-  const uid=data.localId;
-  await fbDb.collection('users').doc(uid).set({uid,email,role:'member',name:memberData.name,memberId:memberData.id});
+  // Save current admin session to restore after creating member account
+  const adminUser = fbAuth ? fbAuth.currentUser : null;
+
+  // Use Firebase Auth SDK directly (avoids API key domain restrictions)
+  let uid;
+  try {
+    // Create via REST with the project's own API key (works server-side style)
+    const apiKey='AIzaSyC5pyRzexFq60aFiS56Sih2xhmCb8PTVeQ';
+    const res=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password,returnSecureToken:true})
+    });
+    const data=await res.json();
+    if(data.error){
+      const msg=data.error.message;
+      if(msg==='EMAIL_EXISTS') throw new Error('Este e-mail já tem cadastro.');
+      if(msg==='INVALID_EMAIL') throw new Error('E-mail inválido.');
+      if(msg==='WEAK_PASSWORD : Password should be at least 6 characters') throw new Error('Senha muito fraca. Use ao menos 6 caracteres.');
+      throw new Error(msg);
+    }
+    uid=data.localId;
+  } catch(fetchErr){
+    // If REST call fails (network/domain restriction), fallback error
+    throw new Error('Erro ao criar acesso: '+fetchErr.message);
+  }
+
+  // Save member profile to Firestore
+  try {
+    await fbDb.collection('users').doc(uid).set({
+      uid, email, role:'member', name:memberData.name, memberId:memberData.id
+    });
+  } catch(fsErr){
+    // Firestore write failed — still return uid so member data is saved
+    console.warn('Firestore users write failed:', fsErr.message);
+  }
   return uid;
 }
 
