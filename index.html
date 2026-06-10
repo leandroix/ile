@@ -64,46 +64,19 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 .slbl{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--tl);margin:16px 0 8px}
 
 /* VITRINE */
-.vwrap{
-  overflow:hidden;
-  background:#111;
-  flex-shrink:0;
-  border-radius:22px;
-  margin:12px 12px 0;
-  box-shadow:0 4px 18px rgba(0,0,0,.12);
-}
-.vtrack{
-  display:flex;
-  transition:transform .4s cubic-bezier(.4,0,.2,1);
-  border-radius:22px;
-}
-.vslide{
-  flex-shrink:0;
-  width:100%;
-  min-height:170px;
-  max-height:240px;
-  position:relative;
-  display:flex;
-  align-items:flex-end;
-  overflow:hidden;
-}
-.vslide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.vov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 65%)}
-.vc{position:relative;z-index:2;padding:14px;width:100%}
-.vslide.txt{min-height:140px}
-.vslide.txt .vc{padding:20px 16px}
-.vtit{font-family:var(--fs);font-size:18px;font-weight:600;color:#fff;line-height:1.2;margin-bottom:3px}
-.vbody{font-size:13px;color:rgba(255,255,255,.85);line-height:1.5;white-space:pre-line}
-.vlink{display:inline-block;margin-top:8px;background:rgba(255,255,255,.2);color:#fff;font-size:12px;padding:5px 13px;border-radius:20px;text-decoration:none;border:1px solid rgba(255,255,255,.3)}
-.vdots{display:flex;justify-content:center;gap:5px;padding:7px 0 3px;background:var(--bg)}
+.vwrap{overflow:hidden;border-radius:var(--rmd);margin:10px 12px 0;display:none}
+.vtrack{display:flex;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+.vslide{flex-shrink:0;width:100%;cursor:pointer;padding:12px 14px;box-sizing:border-box}
+.vb-title{font-family:var(--fs);font-size:16px;font-weight:600;color:#fff;line-height:1.2;margin-bottom:3px}
+.vb-body{font-size:12px;color:rgba(255,255,255,.82);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vdots{display:flex;justify-content:center;gap:5px;padding:6px 0 2px}
 .vdot{width:6px;height:6px;border-radius:50%;background:var(--bo);cursor:pointer;transition:all .2s}
 .vdot.on{background:var(--p);width:14px;border-radius:3px}
-.vslide{cursor:pointer}
 /* Vitrine modal */
 .vmodal{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto}
 .vmodal.on{display:flex}
 .vmodal-close{position:fixed;top:calc(14px + var(--ss));right:16px;z-index:301;background:rgba(0,0,0,.55);border:none;color:#fff;font-size:22px;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;backdrop-filter:blur(4px)}
-.vmodal-img{width:100%;max-width:600px;max-height:70vh;object-fit:contain;border-radius:0 0 12px 12px}
+.vmodal-img{display:none}
 .vmodal-txt{width:100%;max-width:600px;padding:20px 20px calc(32px + var(--sb));flex:1}
 .vmodal-title{font-family:var(--fs);font-size:22px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:10px}
 .vmodal-body{font-size:15px;color:rgba(255,255,255,.82);line-height:1.7;white-space:pre-line;margin-bottom:16px}
@@ -610,7 +583,7 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 
 <!-- HOME -->
 <div class="pg on" id="pg-home">
-  <div class="vwrap"><div class="vtrack" id="vtrack"></div></div>
+  <div class="vwrap" id="vwrap"><div class="vtrack" id="vtrack"></div></div>
   <div class="vdots" id="vdots"></div>
   <div class="mpanel">
     <div class="mcard">
@@ -851,28 +824,21 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 <div class="pg" id="pg-vitrine">
   <div class="pi">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-      <div class="ptit">Vitrine</div>
-      <button onclick="openOv('ov-newslide')" style="background:var(--p);color:#fff;border:none;border-radius:var(--rsm);padding:7px 14px;font-size:13px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">+ Novo card</button>
+      <div class="ptit">Banners</div>
+      <button onclick="openNewBanner()" style="background:var(--p);color:#fff;border:none;border-radius:var(--rsm);padding:7px 14px;font-size:13px;font-family:var(--sans);cursor:pointer;touch-action:manipulation">+ Novo</button>
     </div>
-    <div class="psub">Cards publicados no barracão</div>
-    <div class="card" style="margin-top:12px">
-      <div id="slides-adm-inline"></div>
-    </div>
-    <div style="margin-top:12px">
-      <button class="boutl" onclick="openOv('ov-newslide')">+ Novo card na vitrine</button>
-    </div>
+    <div class="psub">Avisos exibidos na tela inicial</div>
+    <div id="banner-adm-list" style="margin-top:10px"></div>
   </div>
 </div>
 
-<!-- VITRINE MODAL -->
+<!-- BANNER MODAL -->
 <div class="vmodal" id="vmodal" onclick="if(event.target===this)closeVModal()">
   <button class="vmodal-close" onclick="closeVModal()">✕</button>
-  <img id="vmodal-img" src="" alt="" class="vmodal-img" style="display:none"/>
-  <div id="vmodal-color-bg" style="display:none;width:100%;max-width:600px;height:220px;border-radius:0 0 12px 12px"></div>
   <div class="vmodal-txt">
     <div class="vmodal-title" id="vmodal-title"></div>
-    <div class="vmodal-body" id="vmodal-body"></div>
-    <a id="vmodal-link" href="#" target="_blank" class="vmodal-link" style="display:none"></a>
+    <div class="vmodal-body" id="vmodal-body" style="font-size:15px;color:rgba(255,255,255,.88);line-height:1.7;white-space:pre-line"></div>
+    <a id="vmodal-link" href="#" target="_blank" class="vmodal-link" style="display:none;margin-top:18px;background:rgba(255,255,255,.15);color:#fff;font-size:14px;padding:10px 20px;border-radius:20px;text-decoration:none;border:1px solid rgba(255,255,255,.3)"></a>
   </div>
 </div>
 
@@ -975,18 +941,17 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
   </div>
   <div class="fld"><label>Nome completo *</label><input id="nm-nome" type="text" placeholder="Maria Aparecida"/></div>
   <div class="fld"><label>Data de nascimento</label><input id="nm-nasc" type="date"/></div>
+  <div class="fld"><label>E-mail</label><input id="nm-email" type="email"/></div>
+  <div class="fld"><label>Telefone</label><input id="nm-tel" type="tel" placeholder="(21) 9xxxx-xxxx"/></div>
+  <div class="fld"><label>Data de iniciação</label><input id="nm-init" type="date"/></div>
+  <div class="fld"><label>Orixá</label><select id="nm-orixa"></select></div>
+  <div class="fld"><label>Juntó</label><input id="nm-junto" type="text" placeholder="Orixá juntó"/></div>
+  <div class="fld"><label>Odú</label><input id="nm-odu" type="text" placeholder="Ex: Ogbe, Oyeku..."/></div>
+  <div class="fld"><label>Exu</label><input id="nm-exu" type="text" placeholder="Nome do Exu"/></div>
   <div class="fld"><label>Função no axé</label><select id="nm-role"></select></div>
   <div class="fld"><label>Cargo</label><select id="nm-cargo"><option value="">— Sem cargo —</option></select></div>
-  <div class="fld"><label>Orixá</label><select id="nm-orixa"></select></div>
-  <div class="fld"><label>Orunko</label><input id="nm-orunko" type="text" placeholder="Nome de santo"/></div>
-  <div class="fld"><label>Odú</label><input id="nm-odu" type="text" placeholder="Ex: Ogbe, Oyeku..."/></div>
-  <div class="fld"><label>Data de iniciação</label><input id="nm-init" type="date"/></div>
   <div class="fld"><label>Assentamentos</label><textarea id="nm-assent" placeholder="Orixás assentados..."></textarea></div>
-  <div class="fld"><label>Juntó</label><input id="nm-junto" type="text" placeholder="Orixá juntó"/></div>
-  <div class="fld"><label>Exu</label><input id="nm-exu" type="text" placeholder="Nome do Exu"/></div>
-  <div class="fld"><label>Telefone</label><input id="nm-tel" type="tel" placeholder="(21) 9xxxx-xxxx"/></div>
-  <div class="fld"><label>E-mail</label><input id="nm-email" type="email"/></div>
-  <div class="fld"><label>Observações</label><textarea id="nm-obs" placeholder="Notas, histórico..."></textarea></div>
+  <div class="fld"><label>Obrigações</label><textarea id="nm-obs" placeholder="Histórico de obrigações..."></textarea></div>
   <div style="background:var(--pp);border:1px solid var(--pmut);border-radius:var(--rmd);padding:13px 14px;margin:10px 0 4px">
     <div style="font-size:12px;font-weight:600;color:var(--pm);margin-bottom:3px">🔐 Acesso ao app</div>
     <div style="font-size:11px;color:var(--tmu);margin-bottom:11px;line-height:1.5">Crie o login para este membro ver a própria ficha.</div>
@@ -1163,16 +1128,19 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 <!-- NEW SLIDE -->
 <div class="ov" id="ov-newslide" style="z-index:400" onclick="if(event.target===this)closeOv('ov-newslide')">
 <div class="sheet">
-  <div class="sh"></div><div class="stit">Novo card na vitrine</div>
-  <div class="fld"><label>Tipo</label><select id="sl-type" onchange="toggleSlideF()"><option value="text">Somente texto</option><option value="image">Imagem + texto</option><option value="link">Link externo</option></select></div>
+  <div class="sh"></div><div class="stit">Banner do barracão</div>
   <div class="fld"><label>Título *</label><input id="sl-title" type="text" placeholder="Ex: Obrigação de junho"/></div>
-  <div class="fld"><label>Mensagem</label><textarea id="sl-body" placeholder="Texto do card..."></textarea></div>
-  <div id="slf-img" class="fld" style="display:none"><label>URL da imagem</label><input id="sl-img-url" type="url" placeholder="https://..."/></div>
-  <div id="slf-file" class="fld" style="display:none"><label>Ou enviar do dispositivo</label><input id="sl-img-file" type="file" accept="image/*" onchange="prevSlide(this)"/></div>
-  <div id="slf-prev" style="display:none;margin-bottom:9px"><img id="sl-prev-img" style="width:100%;max-height:130px;object-fit:cover;border-radius:9px"/></div>
-  <div id="slf-link" class="fld" style="display:none"><label>URL do link</label><input id="sl-link" type="url" placeholder="https://..."/></div>
-  <div id="slf-lbl" class="fld" style="display:none"><label>Texto do botão</label><input id="sl-lbl" type="text" placeholder="Ver mais"/></div>
-  <div class="fld"><label>Cor de fundo</label><input id="sl-color" type="color" value="#5c1a1a"/></div>
+  <div class="fld"><label>Texto completo</label><textarea id="sl-body" rows="4" placeholder="Escreva o aviso ou informação..."></textarea></div>
+  <div class="fld"><label>Link (opcional)</label><input id="sl-link" type="url" placeholder="https://..."/></div>
+  <div class="fld"><label>Texto do botão do link</label><input id="sl-lbl" type="text" placeholder="Ver mais"/></div>
+  <div class="fld"><label>Cor de fundo</label>
+    <div style="display:flex;align-items:center;gap:10px;background:var(--sf);border:1px solid var(--bo);border-radius:var(--rsm);padding:8px 12px;cursor:pointer" onclick="document.getElementById('sl-color').click()">
+      <input id="sl-color" type="color" value="#5c1a1a" style="width:0;height:0;opacity:0;position:absolute;pointer-events:none" oninput="document.getElementById('sl-color-preview').style.background=this.value;document.getElementById('sl-color-lbl').textContent=this.value"/>
+      <div id="sl-color-preview" style="width:32px;height:32px;border-radius:6px;border:1px solid rgba(0,0,0,.1);background:#5c1a1a;flex-shrink:0"></div>
+      <span id="sl-color-lbl" style="font-size:13px;color:var(--tm);font-family:var(--sans)">#5c1a1a</span>
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px;margin-left:auto;flex-shrink:0" fill="none" stroke="var(--tl)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+    </div>
+  </div>
   <div class="sbtns"><button class="bcancel" onclick="closeOv('ov-newslide')">Cancelar</button><button class="bsave" onclick="addSlide()">Publicar</button></div>
 </div>
 </div>
@@ -1448,52 +1416,101 @@ function renderFichaMembro(){
 // ══ VITRINE ════════════════════════════════════
 let slIdx=0,slTimer;
 function renderVitrine(){
-  const tr=document.getElementById('vtrack'),dt=document.getElementById('vdots');
-  const vwrap=document.querySelector('.vwrap');
-  if(!S.slides.length){
+  const vwrap=document.getElementById('vwrap');
+  const tr=document.getElementById('vtrack');
+  const dt=document.getElementById('vdots');
+  if(!S.slides||!S.slides.length){
     if(vwrap)vwrap.style.display='none';
-    dt.innerHTML='';return;
+    if(dt)dt.innerHTML='';
+    renderBannerAdm();return;
   }
-  if(vwrap)vwrap.style.display='';
-  tr.innerHTML=S.slides.map((s,i)=>{
-    if(s.type==='image'&&s.imgData)
-      return`<div class="vslide" style="width:100%" onclick="openVModal(${i})"><img src="${s.imgData}"/><div class="vov"></div><div class="vc"><div class="vtit">${s.title}</div>${s.body?`<div class="vbody">${s.body}</div>`:''} ${s.link?`<a href="${s.link}" target="_blank" class="vlink" onclick="event.stopPropagation()">${s.linkLabel||'Ver mais'}</a>`:''}</div></div>`;
-    return`<div class="vslide txt" style="background:${s.color||S.color};width:100%" onclick="openVModal(${i})"><div class="vc"><div class="vtit">${s.title}</div>${s.body?`<div class="vbody">${s.body}</div>`:''} ${s.link?`<a href="${s.link}" target="_blank" class="vlink" onclick="event.stopPropagation()">${s.linkLabel||'Ver mais'}</a>`:''}</div></div>`;
-  }).join('');
-  dt.innerHTML=S.slides.map((_,i)=>`<div class="vdot${i===slIdx?' on':''}" onclick="goSlide(${i})"></div>`).join('');
+  vwrap.style.display='block';
+  tr.innerHTML=S.slides.map((s,i)=>
+    `<div class="vslide" style="background:${s.color||S.color}" onclick="openVModal(${i})">
+      <div class="vb-title">${s.title}</div>
+      ${s.body?`<div class="vb-body">${s.body}</div>`:''}
+    </div>`
+  ).join('');
+  dt.innerHTML=S.slides.length>1?S.slides.map((_,i)=>`<div class="vdot${i===slIdx?' on':''}" onclick="goSlide(${i})"></div>`).join(''):'';
   goSlide(slIdx<S.slides.length?slIdx:0);
   clearInterval(slTimer);
   if(S.slides.length>1)slTimer=setInterval(()=>goSlide((slIdx+1)%S.slides.length),4200);
+  initVitrineSwipe();
+  renderBannerAdm();
 }
 function goSlide(i){
   slIdx=i;
   document.getElementById('vtrack').style.transform=`translateX(-${i*100}%)`;
   document.querySelectorAll('.vdot').forEach((d,j)=>d.classList.toggle('on',j===i));
 }
-function openVModal(i){
+function initVitrineSwipe(){
+  const vw=document.getElementById('vwrap');
+  if(!vw||vw._swipe)return;vw._swipe=true;
+  let sx=0,sy=0;
+  vw.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+  vw.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx;
+    const dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)<30||Math.abs(dx)<Math.abs(dy)*1.2)return;
+    clearInterval(slTimer);
+    if(dx<0)goSlide((slIdx+1)%S.slides.length);
+    else goSlide((slIdx-1+S.slides.length)%S.slides.length);
+    if(S.slides.length>1)slTimer=setInterval(()=>goSlide((slIdx+1)%S.slides.length),4200);
+  },{passive:true});
+}
+function renderBannerAdm(){
+  const w=document.getElementById('banner-adm-list');if(!w)return;
+  if(!S.slides||!S.slides.length){w.innerHTML='<div style="font-size:13px;color:var(--tmu);padding:8px 0">Nenhum banner publicado.</div>';return;}
+  w.innerHTML=S.slides.map((s,i)=>
+    `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bo)">
+      <div style="width:36px;height:36px;border-radius:8px;background:${s.color||S.color};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;color:var(--tm);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.title}</div>
+        ${s.body?`<div style="font-size:11px;color:var(--tmu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.body}</div>`:''}
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button onclick="editBanner(${i})" style="background:var(--sf);border:1px solid var(--bo);border-radius:6px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px">✏️</button>
+        <button onclick="delBanner(${i})" style="background:var(--sf);border:1px solid var(--bo);border-radius:6px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+      </div>
+    </div>`
+  ).join('');
+}
+let _editingBannerIdx=-1;
+function openNewBanner(){
+  _editingBannerIdx=-1;
+  ['sl-title','sl-body','sl-link','sl-lbl'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const _sc=document.getElementById('sl-color');if(_sc){_sc.value=S.color||"#5c1a1a";const _p=document.getElementById('sl-color-preview');const _l=document.getElementById('sl-color-lbl');if(_p)_p.style.background=S.color||"#5c1a1a";if(_l)_l.textContent=S.color||"#5c1a1a";}
+  document.querySelector('#ov-newslide .stit').textContent='Novo banner';
+  openOv('ov-newslide');
+}
+function editBanner(i){
+  _editingBannerIdx=i;
   const s=S.slides[i];
-  const modal=document.getElementById('vmodal');
-  const img=document.getElementById('vmodal-img');
-  const bg=document.getElementById('vmodal-color-bg');
-  if(s.type==='image'&&s.imgData){
-    img.src=s.imgData; img.style.display='block';
-    bg.style.display='none';
-  } else {
-    img.style.display='none';
-    bg.style.background=s.color||S.color;
-    bg.style.display='block';
-  }
+  document.getElementById('sl-title').value=s.title||'';
+  document.getElementById('sl-body').value=s.body||'';
+  document.getElementById('sl-link').value=s.link||'';
+  document.getElementById('sl-lbl').value=s.linkLabel||'';
+  const _sc=document.getElementById('sl-color');if(_sc){_sc.value=s.color||S.color;const _p=document.getElementById('sl-color-preview');const _l=document.getElementById('sl-color-lbl');if(_p)_p.style.background=s.color||S.color;if(_l)_l.textContent=s.color||S.color;}
+  document.querySelector('#ov-newslide .stit').textContent='Editar banner';
+  openOv('ov-newslide');
+}
+function delBanner(i){
+  const id=S.slides[i].id;
+  showConfirm(`Remover "${S.slides[i].title}"?`,()=>{
+    S.slides.splice(i,1);saveS();fbAutoDelete('slides',id);renderVitrine();toast('Banner removido.');
+  });
+}
+function openVModal(i){
+  const s=S.slides[i];if(!s)return;
   document.getElementById('vmodal-title').textContent=s.title;
   document.getElementById('vmodal-body').textContent=s.body||'';
   const lnk=document.getElementById('vmodal-link');
   if(s.link){lnk.href=s.link;lnk.textContent=s.linkLabel||'Ver mais';lnk.style.display='inline-block';}
   else{lnk.style.display='none';}
-  modal.classList.add('on');
-  modal.scrollTop=0;
+  const modal=document.getElementById('vmodal');
+  modal.classList.add('on');modal.scrollTop=0;
 }
-function closeVModal(){
-  document.getElementById('vmodal').classList.remove('on');
-}
+function closeVModal(){document.getElementById('vmodal').classList.remove('on');}
 
 // ══ HOME ═══════════════════════════════════════
 function renderDueBanner(){
@@ -2469,44 +2486,26 @@ function exportJSON(){
   toast('JSON exportado!');
 }
 
-// ══ SLIDES ══════════════════════════════════════
-function renderSlidesAdm(targetId){
-  const ids=targetId?[targetId]:['slides-adm-inline'];
-  ids.forEach(id=>{
-    const w=document.getElementById(id);if(!w)return;
-    if(!S.slides.length){w.innerHTML='<div style="font-size:13px;color:var(--tmu);padding:6px 0">Nenhum card.</div>';}
-    else{w.innerHTML=S.slides.map((s,i)=>{
-      const th=s.imgData?`<img class="seth" src="${s.imgData}"/>`:`<div class="seth" style="background:${s.color||S.color}"></div>`;
-      return`<div class="secard">${th}<div class="seinf"><div class="setit">${s.title}</div><div class="sety">${s.type==='image'?'🖼 Imagem':s.type==='link'?'🔗 Link':'📝 Texto'}</div></div><div class="iacts"><button class="iact del" onclick="delSlide(${i})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div></div>`;
-    }).join('');}
-  });
-}
-function delSlide(i){const id=S.slides[i].id;showConfirm(`Remover "${S.slides[i].title}"?`,()=>{S.slides.splice(i,1);saveS();fbAutoDelete('slides',id);renderSlidesAdm();renderVitrine();toast('Card removido!');});}
-function toggleSlideF(){
-  const t=document.getElementById('sl-type').value;
-  document.getElementById('slf-img').style.display=t==='image'?'block':'none';
-  document.getElementById('slf-file').style.display=t==='image'?'block':'none';
-  document.getElementById('slf-link').style.display=(t==='link'||t==='image')?'block':'none';
-  document.getElementById('slf-lbl').style.display=(t==='link'||t==='image')?'block':'none';
-}
-function prevSlide(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{document.getElementById('sl-prev-img').src=e.target.result;document.getElementById('slf-prev').style.display='block';};r.readAsDataURL(f);}
+// ══ BANNER ══════════════════════════════════════
+function renderSlidesAdm(){ renderBannerAdm(); }
 function addSlide(){
   const title=document.getElementById('sl-title').value.trim();if(!title){toast('Informe o título');return;}
-  const type=document.getElementById('sl-type').value;
-  const slide={id:Date.now(),type,title,body:document.getElementById('sl-body').value,color:document.getElementById('sl-color').value,link:document.getElementById('sl-link')?.value||'',linkLabel:document.getElementById('sl-lbl')?.value||''};
-  if(type==='image'){
-    const fi=document.getElementById('sl-img-file');
-    const url=document.getElementById('sl-img-url').value.trim();
-    if(fi.files[0]){const r=new FileReader();r.onload=e=>{slide.imgData=e.target.result;S.slides.push(slide);saveS();closeOv('ov-newslide');renderVitrine();renderSlidesAdm();toast('Card publicado!');};r.readAsDataURL(fi.files[0]);return;}
-    if(url)slide.imgData=url;
+  if(!S.slides)S.slides=[];
+  if(_editingBannerIdx>=0&&_editingBannerIdx<S.slides.length){
+    const s=S.slides[_editingBannerIdx];
+    s.title=title;s.body=document.getElementById('sl-body').value;
+    s.color=document.getElementById('sl-color').value;
+    s.link=document.getElementById('sl-link')?.value||'';
+    s.linkLabel=document.getElementById('sl-lbl')?.value||'';
+    saveS();fbAutoSave('slides',s);
+    closeOv('ov-newslide');renderVitrine();toast('Banner atualizado! 🌿');
+  } else {
+    const slide={id:Date.now(),type:'text',title,body:document.getElementById('sl-body').value,color:document.getElementById('sl-color').value,link:document.getElementById('sl-link')?.value||'',linkLabel:document.getElementById('sl-lbl')?.value||''};
+    S.slides.push(slide);saveS();fbAutoSave('slides',slide);
+    closeOv('ov-newslide');renderVitrine();toast('Banner publicado! 🌿');
   }
-  S.slides.push(slide);saveS();
-  // não salva base64 no Firestore — só URLs externas
-  const slideCloud={...slide};if(slideCloud.imgData&&slideCloud.imgData.startsWith('data:'))delete slideCloud.imgData;
-  fbAutoSave('slides',slideCloud);
-  closeOv('ov-newslide');renderVitrine();renderSlidesAdm();toast('Card publicado! 🌿');
-  ['sl-title','sl-body','sl-img-url','sl-link','sl-lbl'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  document.getElementById('slf-prev').style.display='none';
+  ['sl-title','sl-body','sl-link','sl-lbl'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  _editingBannerIdx=-1;
 }
 
 // ══ EXPORT CSV ═════════════════════════════════
@@ -2566,7 +2565,29 @@ function exportFichasPDF(idxSingle){
           ${row('Assentamentos',m.assentamentos)}
         </table>
       </div>
-      ${m.obs?`<div style="margin-top:14px;padding:10px 14px;background:#f7f7f7;border-radius:6px;font-size:12px;color:#555;line-height:1.5"><strong style="color:#333">Observações:</strong> ${m.obs}</div>`:''}
+      ${(()=>{
+        let obrigacoes=m.obrigacoes;
+        if(!obrigacoes){obrigacoes=[];}
+        else if(!Array.isArray(obrigacoes)){obrigacoes=Object.values(obrigacoes);}
+        obrigacoes=obrigacoes.slice().sort((a,b)=>(a.data||'').localeCompare(b.data||''));
+        const textoObs=m.obs?`<div style="margin-bottom:10px;font-size:12px;color:#444;line-height:1.6;white-space:pre-line">${m.obs}</div>`:'';
+        const listaObrig=obrigacoes.length?obrigacoes.map(o=>{
+          const parts=(o.data||'').split('-');
+          const dataFmt=parts.length===3?parts[2]+'/'+parts[1]+'/'+parts[0]:o.data||'';
+          return`<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #eee">
+            <div style="width:70px;font-size:11px;color:#888;flex-shrink:0">${dataFmt}</div>
+            <div style="flex:1">
+              ${o.local?`<div style="font-size:11px;color:#888;margin-bottom:2px">${o.local}</div>`:''}
+              <div style="font-size:12px;color:#333;line-height:1.4">${o.desc||''}</div>
+            </div>
+          </div>`;
+        }).join(''):'';
+        if(!textoObs&&!listaObrig)return'';
+        return`<div style="margin-top:18px">
+          <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #ddd;text-transform:uppercase;letter-spacing:.04em">Obrigações</div>
+          ${textoObs}${listaObrig}
+        </div>`;
+      })()}
       <!-- Footer -->
       <div style="margin-top:20px;padding-top:12px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
         <div style="font-size:10px;color:#bbb">${S.address||''}</div>
