@@ -64,9 +64,29 @@ html,body{height:100%;background:var(--sf);font-family:var(--sans);color:var(--t
 .slbl{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--tl);margin:16px 0 8px}
 
 /* VITRINE */
-.vwrap{overflow:hidden;background:#111;flex-shrink:0}
-.vtrack{display:flex;transition:transform .4s cubic-bezier(.4,0,.2,1)}
-.vslide{flex-shrink:0;width:100%;min-height:170px;max-height:240px;position:relative;display:flex;align-items:flex-end}
+.vwrap{
+  overflow:hidden;
+  background:#111;
+  flex-shrink:0;
+  border-radius:22px;
+  margin:12px 12px 0;
+  box-shadow:0 4px 18px rgba(0,0,0,.12);
+}
+.vtrack{
+  display:flex;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  border-radius:22px;
+}
+.vslide{
+  flex-shrink:0;
+  width:100%;
+  min-height:170px;
+  max-height:240px;
+  position:relative;
+  display:flex;
+  align-items:flex-end;
+  overflow:hidden;
+}
 .vslide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .vov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 65%)}
 .vc{position:relative;z-index:2;padding:14px;width:100%}
