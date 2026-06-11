@@ -3310,39 +3310,48 @@ function hideMemberView(){
 
 // ── Cria usuário Firebase sem deslogar o admin ───────────────
 async function createMemberFirebaseUser(email,password,memberData){
-  // Save current admin session to restore after creating member account
-  const adminUser = fbAuth ? fbAuth.currentUser : null;
+  const apiKey='AIzaSyC5pyRzexFq60aFiS56Sih2xhmCb8PTVeQ';
 
-  // Use Firebase Auth SDK directly (avoids API key domain restrictions)
+  // Fetch com timeout de 15s para não ficar preso
+  const fetchWithTimeout=(url,opts,ms=15000)=>{
+    const ctrl=new AbortController();
+    const t=setTimeout(()=>ctrl.abort(),ms);
+    return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(t));
+  };
+
   let uid;
+  let res,data;
   try {
-    // Create via REST with the project's own API key (works server-side style)
-    const apiKey='AIzaSyC5pyRzexFq60aFiS56Sih2xhmCb8PTVeQ';
-    const res=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email,password,returnSecureToken:true})
-    });
-    const data=await res.json();
-    if(data.error){
-      const msg=data.error.message;
-      if(msg==='EMAIL_EXISTS') throw new Error('Este e-mail já tem cadastro.');
-      if(msg==='INVALID_EMAIL') throw new Error('E-mail inválido.');
-      if(msg==='WEAK_PASSWORD : Password should be at least 6 characters') throw new Error('Senha muito fraca. Use ao menos 6 caracteres.');
-      throw new Error(msg);
-    }
-    uid=data.localId;
-  } catch(fetchErr){
-    // If REST call fails (network/domain restriction), fallback error
-    throw new Error('Erro ao criar acesso: '+fetchErr.message);
+    res=await fetchWithTimeout(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`,
+      {method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({email,password,returnSecureToken:true})}
+    );
+  } catch(netErr){
+    if(netErr.name==='AbortError') throw new Error('Tempo limite esgotado. Verifique sua conexão.');
+    throw new Error('Erro de rede: '+netErr.message);
   }
 
-  // Save member profile to Firestore
+  try{ data=await res.json(); }
+  catch(e){ throw new Error('Resposta inválida do servidor.'); }
+
+  if(data.error){
+    const msg=data.error.message||'';
+    if(msg.includes('EMAIL_EXISTS')) throw new Error('Este e-mail já tem cadastro.');
+    if(msg.includes('INVALID_EMAIL')) throw new Error('E-mail inválido.');
+    if(msg.includes('WEAK_PASSWORD')) throw new Error('Senha muito fraca. Use ao menos 6 caracteres.');
+    if(msg.includes('OPERATION_NOT_ALLOWED')) throw new Error('Cadastro por e-mail não está ativo no Firebase. Ative em Authentication > Sign-in method.');
+    if(msg.includes('TOO_MANY_ATTEMPTS')) throw new Error('Muitas tentativas. Tente mais tarde.');
+    throw new Error('Erro Firebase: '+msg);
+  }
+  uid=data.localId;
+
+  // Salvar perfil no Firestore
   try {
     await fbDb.collection('users').doc(uid).set({
       uid, email, role:'member', name:memberData.name, memberId:memberData.id
     });
   } catch(fsErr){
-    // Firestore write failed — still return uid so member data is saved
     console.warn('Firestore users write failed:', fsErr.message);
   }
   return uid;
