@@ -1456,48 +1456,7 @@ function renderFichaMembro(){
     <div class="slbl">Mensalidades</div>
     <div class="card">${payHtml}</div>
     ${obrigHtml}
-    <button onclick="openAlterarSenha()" style="width:100%;margin-top:12px;padding:11px;border-radius:var(--rsm);font-size:14px;font-family:var(--sans);cursor:pointer;border:1.5px solid var(--bo);background:var(--sf);color:var(--tm);touch-action:manipulation">🔒 Alterar senha</button>
-    <button onclick="doSignOut()" class="bdanger" style="margin-top:8px">🚪 Sair</button>`;
-}
-
-// ══ ALTERAR SENHA ═══════════════════════════════
-function openAlterarSenha(){
-  document.getElementById('as-pwd1').value='';
-  document.getElementById('as-pwd2').value='';
-  document.getElementById('as-status').textContent='';
-  const btn=document.getElementById('as-save-btn');
-  btn.disabled=false; btn.textContent='Salvar';
-  openOv('ov-alterar-senha');
-}
-async function salvarNovaSenha(){
-  const pwd1=document.getElementById('as-pwd1').value;
-  const pwd2=document.getElementById('as-pwd2').value;
-  const statusEl=document.getElementById('as-status');
-  const btn=document.getElementById('as-save-btn');
-  if(!pwd1||!pwd2){toast('Preencha os dois campos');return;}
-  if(pwd1.length<6){toast('A senha deve ter pelo menos 6 caracteres');return;}
-  if(pwd1!==pwd2){statusEl.textContent='❌ As senhas não coincidem.';return;}
-  btn.disabled=true; btn.textContent='Salvando...';
-  statusEl.textContent='⏳ Atualizando...';
-  try{
-    const user=fbAuth.currentUser;
-    if(!user)throw new Error('Você não está logado.');
-    await user.updatePassword(pwd1);
-    closeOv('ov-alterar-senha');
-    toast('Senha alterada com sucesso! 🔒');
-  }catch(e){
-    // Firebase pede reautenticação se a sessão for antiga
-    if(e.code==='auth/requires-recent-login'){
-      statusEl.textContent='';
-      closeOv('ov-alterar-senha');
-      toast('Por segurança, faça login novamente para alterar a senha.');
-      setTimeout(()=>doSignOut(),2000);
-    } else {
-      statusEl.textContent='❌ '+e.message;
-    }
-  } finally{
-    btn.disabled=false; btn.textContent='Salvar';
-  }
+    <button onclick="doSignOut()" class="bdanger" style="margin-top:16px">🚪 Sair</button>`;
 }
 
 // ══ VITRINE ════════════════════════════════════
@@ -1841,9 +1800,7 @@ function openMemDet(idx){
   const addObrigBtn=document.getElementById('det-add-obrig-btn');
   if(addObrigBtn)addObrigBtn.style.display=isAdmin?'block':'none';
   const criarAcessoBtn=document.getElementById('det-criar-acesso-btn');
-  if(criarAcessoBtn)criarAcessoBtn.style.display=(isAdmin&&!m.uid&&m.uid!==0)?'block':'none';
-  // também mostrar se uid existe mas inválido
-  if(criarAcessoBtn&&isAdmin&&typeof m.uid==='string'&&m.uid.trim()==='')criarAcessoBtn.style.display='block';
+  if(criarAcessoBtn)criarAcessoBtn.style.display=(isAdmin&&!m.uid)?'block':'none';
   // reset to ficha tab
   detTab(document.querySelector('#det-tabs .tbbtn'),'ficha');
   renderObrigacoes(idx);
@@ -1972,8 +1929,7 @@ function salvarCriarAcesso(){
       fbAutoSave('members',m);
       closeOv('ov-criar-acesso');
       toast('Acesso criado com sucesso! 🔑');
-      const _caBtn=document.getElementById('det-criar-acesso-btn');
-      if(_caBtn)_caBtn.style.display='none';
+      // refresh detail view
       openMemDet(idx);
     })
     .catch(e=>{
@@ -3354,48 +3310,39 @@ function hideMemberView(){
 
 // ── Cria usuário Firebase sem deslogar o admin ───────────────
 async function createMemberFirebaseUser(email,password,memberData){
-  const apiKey='AIzaSyC5pyRzexFq60aFiS56Sih2xhmCb8PTVeQ';
+  // Save current admin session to restore after creating member account
+  const adminUser = fbAuth ? fbAuth.currentUser : null;
 
-  // Fetch com timeout de 15s para não ficar preso
-  const fetchWithTimeout=(url,opts,ms=15000)=>{
-    const ctrl=new AbortController();
-    const t=setTimeout(()=>ctrl.abort(),ms);
-    return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(t));
-  };
-
+  // Use Firebase Auth SDK directly (avoids API key domain restrictions)
   let uid;
-  let res,data;
   try {
-    res=await fetchWithTimeout(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`,
-      {method:'POST',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({email,password,returnSecureToken:true})}
-    );
-  } catch(netErr){
-    if(netErr.name==='AbortError') throw new Error('Tempo limite esgotado. Verifique sua conexão.');
-    throw new Error('Erro de rede: '+netErr.message);
+    // Create via REST with the project's own API key (works server-side style)
+    const apiKey='AIzaSyC5pyRzexFq60aFiS56Sih2xhmCb8PTVeQ';
+    const res=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password,returnSecureToken:true})
+    });
+    const data=await res.json();
+    if(data.error){
+      const msg=data.error.message;
+      if(msg==='EMAIL_EXISTS') throw new Error('Este e-mail já tem cadastro.');
+      if(msg==='INVALID_EMAIL') throw new Error('E-mail inválido.');
+      if(msg==='WEAK_PASSWORD : Password should be at least 6 characters') throw new Error('Senha muito fraca. Use ao menos 6 caracteres.');
+      throw new Error(msg);
+    }
+    uid=data.localId;
+  } catch(fetchErr){
+    // If REST call fails (network/domain restriction), fallback error
+    throw new Error('Erro ao criar acesso: '+fetchErr.message);
   }
 
-  try{ data=await res.json(); }
-  catch(e){ throw new Error('Resposta inválida do servidor.'); }
-
-  if(data.error){
-    const msg=data.error.message||'';
-    if(msg.includes('EMAIL_EXISTS')) throw new Error('Este e-mail já tem cadastro.');
-    if(msg.includes('INVALID_EMAIL')) throw new Error('E-mail inválido.');
-    if(msg.includes('WEAK_PASSWORD')) throw new Error('Senha muito fraca. Use ao menos 6 caracteres.');
-    if(msg.includes('OPERATION_NOT_ALLOWED')) throw new Error('Cadastro por e-mail não está ativo no Firebase. Ative em Authentication > Sign-in method.');
-    if(msg.includes('TOO_MANY_ATTEMPTS')) throw new Error('Muitas tentativas. Tente mais tarde.');
-    throw new Error('Erro Firebase: '+msg);
-  }
-  uid=data.localId;
-
-  // Salvar perfil no Firestore
+  // Save member profile to Firestore
   try {
     await fbDb.collection('users').doc(uid).set({
       uid, email, role:'member', name:memberData.name, memberId:memberData.id
     });
   } catch(fsErr){
+    // Firestore write failed — still return uid so member data is saved
     console.warn('Firestore users write failed:', fsErr.message);
   }
   return uid;
@@ -3632,21 +3579,6 @@ history.replaceState({type:'page',id:'home'},'');
 appInit();
 </script>
 
-
-<!-- ALTERAR SENHA -->
-<div class="ov" id="ov-alterar-senha" style="z-index:400" onclick="if(event.target===this)closeOv('ov-alterar-senha')">
-<div class="sheet">
-  <div class="sh"></div>
-  <div class="stit">Alterar senha</div>
-  <div class="fld"><label>Nova senha *</label><input id="as-pwd1" type="password" placeholder="Mínimo 6 caracteres"/></div>
-  <div class="fld"><label>Confirmar nova senha *</label><input id="as-pwd2" type="password" placeholder="Repita a senha"/></div>
-  <div id="as-status" style="font-size:12px;color:var(--tmu);min-height:16px;text-align:center;margin-bottom:4px"></div>
-  <div class="sbtns">
-    <button class="bcancel" onclick="closeOv('ov-alterar-senha')">Cancelar</button>
-    <button class="bsave" id="as-save-btn" onclick="salvarNovaSenha()">Salvar</button>
-  </div>
-</div>
-</div>
 
 </body>
 </html>
